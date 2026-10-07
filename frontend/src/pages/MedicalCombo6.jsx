@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Check, ShieldCheck, Download, Zap, BookOpen, Stethoscope, ArrowRight, Loader2, Mail } from "lucide-react";
 import { api, formatINR } from "@/lib/api";
+import { toast } from "sonner";
 import { startRazorpayCheckout } from "@/lib/razorpay";
 import BuyerEmailDialog from "@/components/BuyerEmailDialog";
 import FaqAccordion from "@/components/FaqAccordion";
@@ -81,7 +82,10 @@ export default function MedicalCombo6() {
     startRazorpayCheckout({
       items: [{ product_slug: COMBO_SLUG, edition: "digital" }, ...selected.map((s) => ({ product_slug: s, edition: "digital" }))],
       email,
-      onError: () => setBusy(false),
+      onError: (msg) => {
+        setBusy(false);
+        toast.error("Couldn't start checkout", { description: msg, duration: 8000 });
+      },
       onDismiss: () => setBusy(false),
     });
   };

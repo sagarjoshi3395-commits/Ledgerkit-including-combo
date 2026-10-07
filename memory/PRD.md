@@ -150,3 +150,11 @@ See /app/memory/test_credentials.md.
 - SITE_BASE in seed_data.py repointed to current preview domain https://ledger-website.preview.emergentagent.com so PDF download URLs resolve.
 - Verified: /api/health, /api/products (6), /api/add-ons (5), /api/add-ons/combo (₹299), /api/settings; checkout returns "Payments are not configured" (RAZORPAY keys deliberately NOT set — Phase 2). Home, /products, /meta-ads-decode render (desktop+mobile).
 - PENDING (owner): RAZORPAY_KEY_ID + RAZORPAY_KEY_SECRET to enable checkout; Physiotherapy Clinical Guide PDF; point download links/emails to production domain on deploy.
+
+## Update (v31 — Ledgerkit 6 PDF Medical Combo page)
+- New product medical-6-pdf-combo ₹297 (regular ₹645 = separate-buy total) seeded with all 6 PDFs in download_files (Disease, Medicine, Lab Report, Emergency, ECG, Ayurvedic) — instant delivery works on payment.
+- New landing /medical-6-combo (MedicalCombo6.jsx): launch-offer top bar, dark navy hero (bundle mockup + ₹297 badge + 3 check points), audience chips (MBBS→Interns), "why these guides" difference cards, 6 guide cards, per-guide sample tabs, 3-step how-it-works (email delivery), pricing card with 2 combo-only add-ons (CT/MRI/X-Ray ₹149, Radiology ₹149 — checkbox rows, live total, single Buy button), reviews section (renders only when real reviews exist), FAQ (no-refund-after-download, add-ons only with combo, educational-only), final CTA, mobile sticky buy bar, disclaimer + medicalmasterbook@gmail.com.
+- Backend: GET /api/combo-6/add-ons (combo6_only products); /api/add-ons now excludes combo6_only so CT/Radiology never appear on the medical-bundle page or anywhere else; combo visible in store (7 products) with detail page routing to the landing.
+- Owner covers saved to /samples/combo-6/ (bundle + disease/ecg/emergency/ayurvedic). PLACEHOLDER covers in use for Medicine Reference (reused med-medicine-cover.webp), Lab Report, CT/MRI/X-Ray, Radiology — owner to upload finals.
+- Payments still OFF (no Razorpay keys) — buy flow opens email dialog then shows "Payments are not configured" toast (8s duration).
+- Tested (iteration_1): backend 100% (product ₹297/6 files, add-on isolation, 503 checkout), frontend 100% desktop+mobile (live totals 297→446→595, tabs, dialog, no overflow, regressions green).
