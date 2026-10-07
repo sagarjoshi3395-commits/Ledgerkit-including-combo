@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, ShieldCheck, Download, Zap, BookOpen, Stethoscope, ArrowRight, Loader2, Mail } from "lucide-react";
+import { Check, ShieldCheck, Download, Zap, BookOpen, Stethoscope, ArrowRight, Loader2, Mail, Timer } from "lucide-react";
 import { api, formatINR } from "@/lib/api";
+import { useOfferTimer } from "@/lib/offerTimer";
 import { toast } from "sonner";
 import { startRazorpayCheckout } from "@/lib/razorpay";
 import BuyerEmailDialog from "@/components/BuyerEmailDialog";
@@ -57,6 +58,8 @@ export default function MedicalCombo6() {
   const [selected, setSelected] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const offerSecs = useOfferTimer(9);
+  const offerClock = offerSecs == null ? null : `${String(Math.floor(offerSecs / 60)).padStart(2, "0")}:${String(offerSecs % 60).padStart(2, "0")}`;
 
   useEffect(() => {
     document.title = "Ledgerkit 6 PDF Medical Combo — Instant Download";
@@ -124,10 +127,27 @@ export default function MedicalCombo6() {
 
   return (
     <div className="bg-white" data-testid="medical-combo6-page">
+      <style>{`
+        @keyframes c6float{0%,100%{transform:translateY(0) rotate(6deg)}50%{transform:translateY(-8px) rotate(6deg)}}
+        .c6-float{animation:c6float 3.2s ease-in-out infinite}
+        @keyframes c6chipfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+        .c6-chipfloat{animation:c6chipfloat 3.6s ease-in-out infinite}
+        @keyframes c6pulse{0%,100%{opacity:1}50%{opacity:.55}}
+        .c6-pulse{animation:c6pulse 1.6s ease-in-out infinite}
+        @keyframes c6glowY{0%,100%{box-shadow:0 0 0 0 rgba(255,212,0,.45)}50%{box-shadow:0 0 0 10px rgba(255,212,0,0)}}
+        .c6-glow{animation:c6glowY 2s ease-out infinite}
+        @keyframes c6glowV{0%,100%{box-shadow:0 0 0 0 rgba(46,26,200,.4)}50%{box-shadow:0 0 0 10px rgba(46,26,200,0)}}
+        .c6-glow-violet{animation:c6glowV 2s ease-out infinite}
+      `}</style>
       {/* TOP BAR */}
       <div className="bg-ink-surface px-4 py-2.5 text-center" data-testid="combo6-topbar">
         <p className="font-mono text-[11px] font-bold uppercase tracking-widest text-white">
-          Launch offer: 6 Medical PDF Guides for {formatINR(comboPrice)} · <span className="text-brand-400">Instant download</span>
+          Launch offer: 6 Medical PDF Guides for {formatINR(comboPrice)} <span className="text-slate-500 line-through">₹1,699</span> · <span className="text-brand-400">Instant download</span>
+          {offerClock && (
+            <span className="c6-pulse ml-2 inline-flex items-center gap-1 rounded-full bg-brand-400 px-2 py-0.5 text-ink-surface" data-testid="combo6-topbar-timer">
+              <Timer className="h-3 w-3" /> Ends in <span className="tabular-nums">{offerClock}</span>
+            </span>
+          )}
         </p>
       </div>
 
@@ -154,14 +174,24 @@ export default function MedicalCombo6() {
                 </li>
               ))}
             </ul>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="mt-8 flex items-end gap-3">
+              <span className="font-display text-4xl font-extrabold text-white" data-testid="combo6-hero-price">{formatINR(comboPrice)}</span>
+              <span className="pb-1 text-lg text-slate-500 line-through">₹1,699</span>
+              <span className="mb-1 rounded-full bg-brand-400/15 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-brand-400">Save 82%</span>
+            </div>
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
               <button
                 onClick={openBuy}
                 data-testid="combo6-hero-buy-button"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-400 px-7 py-4 font-display text-base font-extrabold text-ink-surface transition-colors duration-200 hover:bg-[#ffe14d]"
+                className="c6-glow inline-flex items-center justify-center gap-2 rounded-lg bg-brand-400 px-7 py-4 font-display text-base font-extrabold text-ink-surface transition-colors duration-200 hover:bg-[#ffe14d]"
               >
                 Download all 6 — {formatINR(total)} <ArrowRight className="h-4 w-4" />
               </button>
+              {offerClock && (
+                <span className="inline-flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-slate-300" data-testid="combo6-hero-timer">
+                  <Timer className="h-3.5 w-3.5 text-brand-400" /> Offer ends in <span className="tabular-nums text-brand-400">{offerClock}</span>
+                </span>
+              )}
             </div>
             <p className="mt-3 flex items-center gap-1.5 text-xs text-slate-400">
               <ShieldCheck className="h-3.5 w-3.5 text-brand-400" /> Instant PDF access · Secure payment
@@ -176,8 +206,15 @@ export default function MedicalCombo6() {
                 loading="eager"
                 data-testid="combo6-hero-image"
               />
-              <span className="absolute -right-3 -top-3 flex h-20 w-20 rotate-6 items-center justify-center rounded-full bg-brand-400 text-center font-display text-lg font-extrabold leading-tight text-ink-surface shadow-lg" data-testid="combo6-price-badge">
-                {formatINR(comboPrice)}
+              <span className="c6-float absolute -right-3 -top-3 flex h-20 w-20 rotate-6 flex-col items-center justify-center rounded-full bg-brand-400 text-center font-display font-extrabold leading-tight text-ink-surface shadow-lg" data-testid="combo6-price-badge">
+                <span className="text-[10px] line-through opacity-70">₹1,699</span>
+                <span className="text-lg">{formatINR(comboPrice)}</span>
+              </span>
+              <span className="c6-chipfloat absolute -left-3 top-10 hidden items-center gap-2 rounded-xl border border-white/10 bg-ink-card/90 px-3.5 py-2 text-xs font-bold text-white shadow-xl backdrop-blur sm:flex">
+                <Download className="h-3.5 w-3.5 text-brand-400" /> Instant PDF
+              </span>
+              <span className="c6-chipfloat absolute -left-4 bottom-12 hidden items-center gap-2 rounded-xl border border-white/10 bg-ink-card/90 px-3.5 py-2 text-xs font-bold text-white shadow-xl backdrop-blur sm:flex" style={{ animationDelay: "1.6s" }}>
+                <BookOpen className="h-3.5 w-3.5 text-brand-400" /> 6 guides inside
               </span>
             </div>
           </Reveal>
@@ -375,6 +412,9 @@ export default function MedicalCombo6() {
                 <span className="text-sm font-semibold text-slate-600">Total{selected.length ? ` (combo + ${selected.length} add-on${selected.length > 1 ? "s" : ""})` : ""}</span>
                 <span className="font-display text-2xl font-extrabold text-ink" data-testid="combo6-total">{formatINR(total)}</span>
               </div>
+              <p className="mt-2 text-right text-xs font-semibold text-emerald-600" data-testid="combo6-save-note">
+                You save {formatINR((combo?.regular_price ?? 1699) - comboPrice)} on the combo (MRP {formatINR(combo?.regular_price ?? 1699)})
+              </p>
               <button
                 onClick={openBuy}
                 data-testid="combo6-pricing-buy-button"
@@ -430,6 +470,9 @@ export default function MedicalCombo6() {
           <p className="mt-6 font-display text-5xl font-extrabold text-white">
             Just <span className="text-brand-400">{formatINR(total)}</span>
           </p>
+          <p className="mt-2 text-sm text-slate-400">
+            <span className="line-through">₹1,699</span> · Launch offer{offerClock ? <span className="c6-pulse ml-1 font-bold text-brand-400">ends in {offerClock}</span> : ""}
+          </p>
           <button
             onClick={openBuy}
             data-testid="combo6-final-buy-button"
@@ -453,23 +496,32 @@ export default function MedicalCombo6() {
         </div>
       </section>
 
-      {/* STICKY MOBILE BAR */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur-md sm:hidden" data-testid="combo6-sticky-bar">
-        <div className="flex items-center justify-between gap-3">
+      {/* STICKY CHECKOUT BAR — all screens */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur-md" data-testid="combo6-sticky-bar">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="truncate text-xs font-bold text-ink">6 Medical PDF Guides</p>
-            <p className="text-[10px] text-slate-500">Instant download</p>
+            <p className="truncate text-xs font-bold text-ink sm:text-sm">
+              6 Medical PDF Guides <span className="ml-1 text-slate-400 line-through">₹1,699</span> <span className="text-brand-700">{formatINR(comboPrice)}</span>
+            </p>
+            <p className="text-[10px] text-slate-500">
+              Instant download
+              {offerClock && (
+                <span className="c6-pulse ml-1.5 inline-flex items-center gap-1 font-bold text-ember" data-testid="combo6-sticky-timer">
+                  <Timer className="h-3 w-3" /> {offerClock} left
+                </span>
+              )}
+            </p>
           </div>
           <button
             onClick={openBuy}
             data-testid="combo6-sticky-buy-button"
-            className="shrink-0 rounded-lg bg-brand-600 px-5 py-2.5 font-display text-sm font-extrabold text-white transition-colors duration-200 hover:bg-brand-700"
+            className="c6-glow-violet shrink-0 rounded-lg bg-brand-600 px-5 py-2.5 font-display text-sm font-extrabold text-white transition-colors duration-200 hover:bg-brand-700 sm:px-7 sm:py-3"
           >
             Buy for {formatINR(total)}
           </button>
         </div>
       </div>
-      <div className="h-16 sm:hidden" />
+      <div className="h-16" />
 
       <BuyerEmailDialog
         open={dialogOpen}

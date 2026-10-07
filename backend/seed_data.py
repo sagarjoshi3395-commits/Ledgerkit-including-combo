@@ -774,7 +774,7 @@ MEDICAL_6_COMBO_PRODUCT = {
     "delivery_method": "Instant digital access after successful payment — download links emailed to you",
     "cta_text": "Download all 6",
     "currency": "INR",
-    "regular_price": 645,
+    "regular_price": 1699,
     "sale_price": 297,
     "featured": True,
     "is_new": True,
