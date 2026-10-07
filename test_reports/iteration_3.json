@@ -1,0 +1,26 @@
+{
+  "summary": "Iteration 3 verified live Razorpay, pricing, 9-min countdown, desktop+mobile sticky bar, animations and video wiring for /medical-6-combo. Backend: expanded /app/backend/tests/test_medical_combo6.py — asserts combo digital.price=297 AND regular_price=1699, and new test_checkout_creates_live_razorpay_order asserts POST /api/checkout/create-order returns razorpay_order_id with key_id starting rzp_live_ and amount=29700. All 15 pytest tests pass (100%). Frontend (Playwright on https://ledger-website.preview.emergentagent.com/medical-6-combo): (a) combo6-topbar-timer='Ends in 08:57', combo6-hero-timer='Offer ends in 08:57', combo6-sticky-timer='08:57 left' at fresh load; ticks down (08:57->08:54 in 2.5s). (b) Hero price ₹297 (combo6-hero-price), save note 'You save ₹1,402 on the combo (MRP ₹1,699)' (combo6-save-note), Save 82% chip visible, MRP ₹1,699 struck. (c) Desktop (1920x1080) sticky bar visible with text '6 Medical PDF Guides ₹1,699 ₹297 Instant download 08:54 left Buy for ₹297'. Mobile (390x844) sticky also visible with same price/strike/timer. No horizontal overflow at either viewport. (d) Animations: combo6-price-badge animation-name='c6float', combo6-topbar-timer animation-name='c6pulse'. (e) LIVE Razorpay: click combo6-sticky-buy-button -> email dialog opens -> entered delivered@resend.dev -> 'Continue to Payment — ₹297' -> REAL razorpay iframe api.razorpay.com/v1/checkout/public opened with Price Summary 297 and 'Secured by Razorpay' branding; dismissed via Escape without paying; page returned to normal. (f) Videos: single <video data-testid=combo6-video-player> element at a time (count=1); switching tabs updates src correctly (ecg -> ecg_reading_guide_page_flow_web.mp4, disease -> disease_reference_guide_page_flow_web.mp4, medicine -> 404 with poster cover-medicine.png networkState=3 error.code=4 as expected). Mp4 files serve HTTP 200 with content-type: video/mp4 and valid ISO MP4 avc1 H.264 signature. NOTE: in headless Chromium v.canPlayType('video/mp4; codecs=avc1...')='' so videos cannot actually PLAY under Playwright and v.play() throws 'The element has no supported sources.' This is a Playwright/Chromium codec limitation, NOT a product bug — real user browsers (Chrome stable/Edge/Safari) include H.264 and will autoplay these muted/loop/playsInline videos as wired.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_medical_combo6.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Video playback could not be verified in automation due to Playwright Chromium lacking H.264 codec. Recommend adding a short webm (VP9) alt <source> alongside the mp4 so headless Chromium + Firefox automation can also validate actual playback, and so the <5% of users on Chromium-based browsers without H.264 still see motion.",
+    "lk_offer_deadline localStorage key never gets re-seeded once it has expired (useOfferTimer sets deadline only when stored is falsy). If a visitor returns after expiry the timer stays hidden forever by design — confirm this is intended business behaviour.",
+    "Razorpay modal shows noisy Mixed-Content warnings (api.razorpay.com loads http://localhost:... images). These originate from Razorpay's own checkout iframe (unrelated to our code) but could confuse debugging — safe to ignore."
+  ],
+  "updated_files": ["/app/backend/tests/test_medical_combo6.py"],
+  "success_rate": {"backend": "100% (15/15)", "frontend": "100% of verifiable behaviours (video actual playback blocked by Chromium codec, not a product bug)"},
+  "test_credentials": "N/A - public storefront. Razorpay LIVE modal opened for screenshot and dismissed; no payment completed.",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Base URL https://ledger-website.preview.emergentagent.com. Backend tests at /app/backend/tests/test_medical_combo6.py (15 tests, includes live Razorpay check expecting rzp_live_ key + 29700 paise + regular_price 1699). Headless Chromium cannot play H.264 mp4s — verify video playback manually in a real browser or add webm fallback. Clear localStorage['lk_offer_deadline'] before countdown tests. Medicine tab mp4 is intentionally missing (poster fallback). Sticky bar testid combo6-sticky-bar, buy btn combo6-sticky-buy-button."
+}

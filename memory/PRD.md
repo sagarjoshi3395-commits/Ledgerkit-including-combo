@@ -164,3 +164,12 @@ See /app/memory/test_credentials.md.
 - Sample Pages section rebuilt as VIDEO section (after What-You-Get): 6 pill tabs (cover thumb + name, active tab filled with guide colour), phone mockup (rounded black frame + notch, 9:16, object-cover) playing per-guide page-flow video, right panel with name/desc/tags + "Get this + 5 more guides – ₹297" scroll-to-pricing CTA. autoplay/muted/loop/playsInline/preload=metadata, single video element, key-remount + 0.3s fade on tab switch, IntersectionObserver lazy-mount (400px), poster=cover. Mobile: horizontal tab scroll, phone above text.
 - VIDEOS PENDING: owner to upload 6 mp4s → /samples/combo-6/videos/ with exact names: disease_reference_guide_page_flow_web.mp4, medicine_reference_guide_page_flow_web.mp4, lab_report_decode_page_flow_web.mp4, emergency_medical_guide_page_flow_web.mp4, ecg_reading_guide_page_flow_web.mp4, ayurvedic_medicine_guide_page_flow_web.mp4. Until then the cover poster shows inside the phone (graceful).
 - Tested (iteration_2): backend 15/15 (all 9 covers HTTP 200, gallery + add-on covers), frontend 100% (tab switch swaps src/poster/title, single video element, CTA scrolls to #pricing, mobile no overflow).
+
+## Update (v33 — Live Razorpay ON + videos + urgency/conversion pass)
+- 5/6 page-flow videos uploaded to /samples/combo-6/videos/ (disease, ecg, emergency, lab, ayurvedic — all valid H.264 MP4, HTTP 200). MEDICINE video still pending — its tab shows the cover poster (graceful).
+- RAZORPAY LIVE KEYS configured in backend/.env — checkout now opens the REAL Razorpay modal at ₹297 (verified: order_ created, 29700 paise, rzp_live_ key; no payment completed in tests).
+- Price: MRP ₹1,699 struck → offer ₹297, "Save 82%" + "You save ₹1,402" (seed regular_price 645→1699).
+- Urgency: 9-minute per-visitor countdown (useOfferTimer(9), shared lk_offer_deadline key) in top bar, hero, sticky bar, final CTA; hides at zero, price unchanged.
+- Sticky checkout bar now on ALL screens (was mobile-only): MRP strike + ₹297 + live total + countdown + glowing Buy button.
+- Engagement animations: floating price badge + floating "Instant PDF"/"6 guides inside" chips, pulsing timer chips, glow rings on CTAs (c6float/c6chipfloat/c6pulse/c6glowY/c6glowV).
+- Tested (iteration_3): backend 15/15 incl. live-order test; frontend 100% — real Razorpay iframe opened & dismissed, timers tick 08:57→, no overflow desktop/mobile. Note: headless Chromium lacks H.264 so automated playback can't be verified; videos play in real browsers.

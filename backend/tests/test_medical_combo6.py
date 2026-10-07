@@ -18,11 +18,13 @@ def test_combo_product_endpoint(client):
     r = client.get(f"{BASE_URL}/api/products/medical-6-pdf-combo", timeout=15)
     assert r.status_code == 200, r.text
     data = r.json()
-    # Price ₹297
-    price = data.get("editions", {}).get("digital", {}).get("price")
-    assert price == 297, f"Expected 297, got {price}"
+    digital = data.get("editions", {}).get("digital", {})
+    # Sale price ₹297, regular/MRP ₹1699
+    assert digital.get("price") == 297, f"Expected sale 297, got {digital.get('price')}"
+    reg = digital.get("regular_price") or data.get("regular_price")
+    assert reg == 1699, f"Expected regular_price 1699, got {reg}"
     # 6 download files
-    files = data.get("download_files") or data.get("editions", {}).get("digital", {}).get("download_files") or []
+    files = data.get("download_files") or digital.get("download_files") or []
     assert len(files) == 6, f"Expected 6 download files, got {len(files)}: {files}"
 
 
@@ -87,17 +89,19 @@ def test_products_list_contains_combo(client):
     assert len(data) >= 7, f"Expected >=7 products, got {len(data)}"
 
 
-# --- Checkout: payments not configured ---
-def test_checkout_payments_not_configured(client):
+# --- Checkout: live Razorpay order ---
+def test_checkout_creates_live_razorpay_order(client):
     payload = {
         "items": [
             {"product_slug": "medical-6-pdf-combo", "edition": "digital", "quantity": 1},
-            {"product_slug": "ct-mri-xray-guide", "edition": "digital", "quantity": 1},
         ],
         "customer_email": "test@example.com",
         "customer_name": "Test",
     }
-    r = client.post(f"{BASE_URL}/api/checkout/create-order", json=payload, timeout=15)
-    assert r.status_code == 503, f"Expected 503, got {r.status_code}: {r.text}"
-    detail = (r.json().get("detail") or "").lower()
-    assert "payments are not configured" in detail, r.text
+    r = client.post(f"{BASE_URL}/api/checkout/create-order", json=payload, timeout=20)
+    assert r.status_code == 200, f"Expected 200, got {r.status_code}: {r.text}"
+    data = r.json()
+    assert data.get("razorpay_order_id"), f"Missing order id: {data}"
+    key_id = data.get("key_id") or data.get("razorpay_key_id") or ""
+    assert key_id.startswith("rzp_live_"), f"Expected live key, got {key_id}"
+    assert data.get("amount") == 29700, f"Expected amount 29700, got {data.get('amount')}"
