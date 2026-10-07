@@ -1,0 +1,21 @@
+{
+  "summary": "Iteration 2 focused on the new video sample section and new covers on /medical-6-combo. Backend: extended /app/backend/tests/test_medical_combo6.py with 3 new tests (combo gallery includes cover-medicine + cover-lab-report, combo-6 add-ons expose correct cover_image, and all 9 public cover PNGs return HTTP 200). All 15 pytest tests pass. Frontend: Playwright automation on live preview URL verified all regression sections present, 6 pill tabs (disease/medicine/lab/emergency/ecg/ayurvedic) render with cover thumbnails, default Disease tab active with blue #2563EB background, phone mockup renders with a single <video data-testid=combo6-video-player> having autoplay/muted/loop/playsInline/preload=metadata, correct poster + src for selected guide, tab-switch to ECG swaps src -> ecg_reading_guide_page_flow_web.mp4, poster -> cover-ecg.png and title -> 'ECG Reading Guide' (only 1 video element in DOM at a time), 'Get this + 5 more guides' CTA smooth-scrolls to #pricing, all 6 'what you get' guide-card covers point to the new real PNGs. Mobile 390x844: no horizontal page overflow, tab row is horizontally scrollable, phone mockup (top ~1545px) renders above the text block (top ~1997px). Video mp4 404s are expected per spec; poster fallback confirmed by poster attribute wiring.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_medical_combo6.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "MedicalCombo6.jsx is 485 lines — consider splitting the video sample section into its own component for maintainability.",
+    "IntersectionObserver uses rootMargin 400px which effectively mounts the video on initial render for most desktop viewports since the section sits <400px below the hero when scrolled slightly; this still matches the lazy-load intent but strict pre-scroll absence can't be guaranteed on tall viewports."
+  ],
+  "updated_files": ["/app/backend/tests/test_medical_combo6.py"],
+  "success_rate": {"backend": "100% (15/15)", "frontend": "100% (all tested behaviours pass)"},
+  "test_credentials": "N/A - public storefront",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Base URL https://ledger-website.preview.emergentagent.com. Video mp4 files under /samples/combo-6/videos/ are intentionally missing — poster fallback is expected. When owner uploads mp4s, re-test actual playback (not just attribute wiring). Backend tests live at /app/backend/tests/test_medical_combo6.py (15 tests)."
+}

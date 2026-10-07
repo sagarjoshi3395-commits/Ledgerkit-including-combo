@@ -35,6 +35,36 @@ def test_combo6_addons(client):
     assert slugs == ["ct-mri-xray-guide", "radiology-guide"], f"Got slugs: {slugs}"
     for p in data:
         assert p["editions"]["digital"]["price"] == 149
+    by_slug = {p["slug"]: p for p in data}
+    assert by_slug["ct-mri-xray-guide"].get("cover_image") == "/samples/combo-6/cover-ct-scan.png"
+    assert by_slug["radiology-guide"].get("cover_image") == "/samples/combo-6/cover-radiology.png"
+
+
+# --- Combo gallery contains new real covers ---
+def test_combo_gallery_includes_new_covers(client):
+    r = client.get(f"{BASE_URL}/api/products/medical-6-pdf-combo", timeout=15)
+    assert r.status_code == 200
+    gallery = r.json().get("gallery") or []
+    assert "/samples/combo-6/cover-medicine.png" in gallery, gallery
+    assert "/samples/combo-6/cover-lab-report.png" in gallery, gallery
+
+
+# --- Public cover assets all return 200 ---
+@pytest.mark.parametrize("path", [
+    "/samples/combo-6/cover-disease.png",
+    "/samples/combo-6/cover-medicine.png",
+    "/samples/combo-6/cover-lab-report.png",
+    "/samples/combo-6/cover-emergency.png",
+    "/samples/combo-6/cover-ecg.png",
+    "/samples/combo-6/cover-ayurvedic.png",
+    "/samples/combo-6/cover-ct-scan.png",
+    "/samples/combo-6/cover-radiology.png",
+    "/samples/combo-6/bundle-6-books.png",
+])
+def test_cover_asset_reachable(client, path):
+    r = client.get(f"{BASE_URL}{path}", timeout=15)
+    assert r.status_code == 200, f"{path} => {r.status_code}"
+    assert int(r.headers.get("content-length", "1")) > 0
 
 
 # --- Regular add-ons must exclude combo6-only ---
