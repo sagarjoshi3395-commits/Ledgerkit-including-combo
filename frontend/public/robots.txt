@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://guide-central-16.preview.emergentagent.com/sitemap.xml

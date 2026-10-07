@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#090D16" />
+        <meta name="description" content="LedgerKit — Digital Product Sales Engine: the complete digital product sales guide with real Meta Ads campaign examples, built from 3 years of hands-on experience." />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="LedgerKit — Digital Product Sales Engine" />
+        <meta property="og:description" content="The complete digital product sales system — research, create, launch and scale — with real Meta Ads campaign examples inside." />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+        <title>LedgerKit — Digital Product Sales Engine | Complete Digital Product Guide</title>
+        <script>window.addEventListener("error",function(e){if(e.error instanceof DOMException&&e.error.name==="DataCloneError"&&e.message&&e.message.includes("PerformanceServerTiming")){e.stopImmediatePropagation();e.preventDefault()}},true);</script>
+        <script src="https://assets.emergent.sh/scripts/emergent-main.js"></script>
+        <script>
+        (function () {
+            var pixelIds = "%REACT_APP_META_PIXEL_ID%".split(",").map(function (id) { return id.trim(); }).filter(function (id) { return id && id.charAt(0) !== "%"; });
+            if (pixelIds.length) {
+                !(function (f, b, e, v, n, t, s) {
+                    if (f.fbq) return; n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+                    if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = "2.0"; n.queue = [];
+                    t = b.createElement(e); t.async = !0; t.src = v; s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
+                })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
+                pixelIds.forEach(function (id) { window.fbq("init", id); });
+                window.fbq("track", "PageView");
+            }
+            var gaId = "%REACT_APP_GA_MEASUREMENT_ID%";
+            if (gaId && gaId.charAt(0) !== "%") {
+                var s = document.createElement("script"); s.async = true;
+                s.src = "https://www.googletagmanager.com/gtag/js?id=" + gaId;
+                document.head.appendChild(s);
+                window.dataLayer = window.dataLayer || [];
+                window.gtag = function () { window.dataLayer.push(arguments); };
+                window.gtag("js", new Date());
+                window.gtag("config", gaId);
+            }
+        })();
+        </script>
+    </head>
+    <body>
+        <noscript>You need to enable JavaScript to run this app.</noscript>
+        <div id="root"></div>
+        <script>
+            !(function (t, e) {
+                var o, n, p, r;
+                e.__SV ||
+                    ((window.posthog = e),
+                    (e._i = []),
+                    (e.init = function (i, s, a) {
+                        function g(t, e) {
+                            var o = e.split(".");
+                            2 == o.length && ((t = t[o[0]]), (e = t[o[1]])),
+                                (t[e] = function () {
+                                    t.push(
+                                        [e].concat(
+                                            Array.prototype.slice.call(
+                                                arguments,
+                                                0,
+                                            ),
+                                        ),
+                                    );
+                                });
+                        }
+                        ((p = t.createElement("script")).type =
+                            "text/javascript"),
+                        (p.crossOrigin = "anonymous"),
+                        (p.async = !0),
+                        (p.src =
+                            s.api_host.replace(
+                                ".i.posthog.com",
+                                "-assets.i.posthog.com",
+                            ) + "/static/array.js"),
+                        (r =
+                            t.getElementsByTagName(
+                                "script",
+                            )[0]).parentNode.insertBefore(p, r);
+                        var u = e;
+                        for (
+                            void 0 !== a && (u = e[a]), (a = "posthog"),
+                                u.people = u.people || [],
+                                u.toString = function (t) {
+                                    var e = "posthog";
+                                    return (
+                                        "posthog" !== e && (e = "." + e),
+                                        t || (e += "." + t),
+                                        e
+                                    );
+                                },
+                                u.people.toString = function (t) {
+                                    return u.people.toString("posthog");
+                                },
+                                o =
+                                    "init me ws ys ps bs capture je Di ks register register_once register_for_session unregister unregister_for_session Ps getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags getSessionId getSessionReplayUrl alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar getPageViewId captureTraceFeedback captureTraceMetric".split(
+                                        " ",
+                                    ),
+                                n = 0;
+                            n < o.length;
+                            n++
+                        )
+                            g(u, o[n]);
+                        e._i.push([i, s, a]);
+                    }),
+                    (e.__SV = 1));
+            })(document, window.posthog || []);
+            posthog.init("phc_DbsPb39SRc8z3EiQ6Dhj6ikv4H4rTKcht9d4sZSesceP", {
+                api_host: "https://ap.emergent.sh",
+                person_profiles: "identified_only",
+                session_recording: {
+                    recordCrossOriginIframes: true,
+                    capturePerformance: false,
+                },
+            });
+        </script>
+    </body>
+</html>
