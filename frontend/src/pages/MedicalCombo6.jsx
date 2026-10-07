@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, ShieldCheck, Download, Zap, BookOpen, Stethoscope, ArrowRight, Loader2, Mail } from "lucide-react";
 import { api, formatINR } from "@/lib/api";
 import { toast } from "sonner";
@@ -7,18 +7,18 @@ import BuyerEmailDialog from "@/components/BuyerEmailDialog";
 import FaqAccordion from "@/components/FaqAccordion";
 import { SectionHeading } from "@/components/SectionHeading";
 import { Reveal } from "@/components/Reveal";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const COMBO_SLUG = "medical-6-pdf-combo";
 const FALLBACK_PRICE = 297;
+const VIDEO_DIR = "/samples/combo-6/videos";
 
 const GUIDES = [
-  { key: "disease", title: "Disease Reference Guide", cover: "/samples/combo-6/cover-disease.png", desc: "120+ common diseases: causes, symptoms, diagnosis, treatment overview.", points: ["120+ common diseases", "Causes & symptoms", "Diagnosis & treatment overview"] },
-  { key: "medicine", title: "Medicine Reference Guide", cover: "/samples/med-medicine-cover.webp", desc: "Common medicines: drug class, uses, side effects, key points.", points: ["Drug class & uses", "Side effects", "Key points at a glance"] },
-  { key: "lab", title: "Lab Report Decode", pages: "86 pages", cover: "/samples/combo-6/cover-lab-report.svg", desc: "CBC, liver, kidney, thyroid, ABG and report patterns.", points: ["CBC, LFT, KFT, thyroid", "ABG interpretation", "Common report patterns"] },
-  { key: "emergency", title: "Emergency Medical Guide", pages: "73 pages", cover: "/samples/combo-6/cover-emergency.png", desc: "ABCDE, CPR, shock, triage, drug quick reference.", points: ["ABCDE & CPR", "Shock & triage", "Emergency drug quick reference"] },
-  { key: "ecg", title: "ECG Reading Guide", pages: "59 pages", cover: "/samples/combo-6/cover-ecg.png", desc: "ECG basics, rhythms, AV blocks, step-by-step approach.", points: ["ECG basics", "Rhythms & AV blocks", "Step-by-step approach"] },
-  { key: "ayurvedic", title: "Ayurvedic Medicine Guide", pages: "78 pages", cover: "/samples/combo-6/cover-ayurvedic.png", desc: "Common Ayurvedic medicines and uses, English + Hindi.", points: ["Common Ayurvedic medicines", "Uses & dosage guidance", "English + Hindi"] },
+  { key: "disease", tab: "Disease", title: "Disease Reference Guide", cover: "/samples/combo-6/cover-disease.png", video: `${VIDEO_DIR}/disease_reference_guide_page_flow_web.mp4`, color: "#2563EB", desc: "120+ common diseases: causes, symptoms, diagnosis, treatment overview.", points: ["120+ common diseases", "Causes & symptoms", "Diagnosis & treatment overview"], tags: ["120+ diseases", "Causes & symptoms", "Diagnosis", "Treatment overview"] },
+  { key: "medicine", tab: "Medicine", title: "Medicine Reference Guide", cover: "/samples/combo-6/cover-medicine.png", video: `${VIDEO_DIR}/medicine_reference_guide_page_flow_web.mp4`, color: "#6D28D9", desc: "Common medicines: drug class, uses, side effects, key points.", points: ["Drug class & uses", "Side effects", "Key points at a glance"], tags: ["Drug classes", "Uses & dosage", "Side effects", "Important notes"] },
+  { key: "lab", tab: "Lab Report", title: "Lab Report Decode", pages: "86 pages", cover: "/samples/combo-6/cover-lab-report.png", video: `${VIDEO_DIR}/lab_report_decode_page_flow_web.mp4`, color: "#1D4ED8", desc: "CBC, liver, kidney, thyroid, ABG and report patterns.", points: ["CBC, LFT, KFT, thyroid", "ABG interpretation", "Common report patterns"], tags: ["CBC, LFT & KFT", "Thyroid & ABG", "Report patterns", "Normal vs abnormal"] },
+  { key: "emergency", tab: "Emergency", title: "Emergency Medical Guide", pages: "73 pages", cover: "/samples/combo-6/cover-emergency.png", video: `${VIDEO_DIR}/emergency_medical_guide_page_flow_web.mp4`, color: "#DC2626", desc: "ABCDE, CPR, shock, triage, drug quick reference.", points: ["ABCDE & CPR", "Shock & triage", "Emergency drug quick reference"], tags: ["ABCDE approach", "CPR steps", "Shock & triage", "Drug quick reference"] },
+  { key: "ecg", tab: "ECG", title: "ECG Reading Guide", pages: "59 pages", cover: "/samples/combo-6/cover-ecg.png", video: `${VIDEO_DIR}/ecg_reading_guide_page_flow_web.mp4`, color: "#E11D48", desc: "ECG basics, rhythms, AV blocks, step-by-step approach.", points: ["ECG basics", "Rhythms & AV blocks", "Step-by-step approach"], tags: ["Rhythm strips", "AV blocks", "Step-by-step method", "Real examples"] },
+  { key: "ayurvedic", tab: "Ayurvedic", title: "Ayurvedic Medicine Guide", pages: "78 pages", cover: "/samples/combo-6/cover-ayurvedic.png", video: `${VIDEO_DIR}/ayurvedic_medicine_guide_page_flow_web.mp4`, color: "#16A34A", desc: "Common Ayurvedic medicines and uses, English + Hindi.", points: ["Common Ayurvedic medicines", "Uses & dosage guidance", "English + Hindi"], tags: ["Common medicines", "Uses & benefits", "Dosage guidance", "English + Hindi"] },
 ];
 
 const AUDIENCE = ["MBBS", "BAMS", "BHMS", "Nursing", "B.Pharm / D.Pharm", "Paramedical", "Interns"];
@@ -76,6 +76,38 @@ export default function MedicalCombo6() {
     setSelected((prev) => (prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug]));
 
   const openBuy = () => setDialogOpen(true);
+  const scrollToPricing = () => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
+
+  const [activeGuide, setActiveGuide] = useState("disease");
+  const [nearSamples, setNearSamples] = useState(false);
+  const samplesRef = useRef(null);
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const el = samplesRef.current;
+    if (!el) return undefined;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setNearSamples(true);
+          obs.disconnect();
+        }
+      },
+      { rootMargin: "400px" },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (v) {
+      v.currentTime = 0;
+      v.play().catch(() => {});
+    }
+  }, [activeGuide, nearSamples]);
+
+  const activeGuideData = GUIDES.find((g) => g.key === activeGuide) || GUIDES[0];
 
   const pay = (email) => {
     setBusy(true);
@@ -207,37 +239,79 @@ export default function MedicalCombo6() {
         </div>
       </section>
 
-      {/* SAMPLE PAGES */}
-      <section className="px-4 py-16 sm:px-6 lg:px-8" data-testid="combo6-samples">
+      {/* SAMPLE PAGES — video previews in a phone mockup */}
+      <section ref={samplesRef} className="px-4 py-16 sm:px-6 lg:px-8" data-testid="combo6-samples">
+        <style>{`@keyframes c6fade{from{opacity:0}to{opacity:1}}.c6-fade{animation:c6fade .3s ease}`}</style>
         <div className="mx-auto max-w-5xl">
-          <SectionHeading eyebrow="Look inside" title="Guide by guide" description="Tap a guide to see it up close." testId="combo6-samples" />
-          <Tabs defaultValue="disease" className="mt-10" data-testid="combo6-sample-tabs">
-            <TabsList className="mx-auto flex h-auto w-full max-w-3xl flex-wrap justify-center gap-1.5 bg-slate-100 p-1.5">
-              {GUIDES.map((g) => (
-                <TabsTrigger key={g.key} value={g.key} className="px-3 py-2 text-xs font-semibold sm:text-sm" data-testid={`combo6-tab-${g.key}`}>
-                  {g.title.replace(" Reference Guide", "").replace(" Medical Guide", "").replace(" Medicine Guide", "")}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            {GUIDES.map((g) => (
-              <TabsContent key={g.key} value={g.key} className="mt-8">
-                <div className="grid items-center gap-8 rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:grid-cols-[auto_1fr] sm:p-10">
-                  <img src={g.cover} alt={`${g.title} cover`} className="mx-auto h-64 w-auto rounded-xl object-contain drop-shadow-2xl" loading="lazy" />
-                  <div>
-                    <h3 className="font-display text-xl font-bold text-ink">{g.title}{g.pages ? <span className="ml-2 text-sm font-semibold text-slate-500">· {g.pages}</span> : null}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-slate-600">{g.desc}</p>
-                    <ul className="mt-4 space-y-2.5">
-                      {g.points.map((p) => (
-                        <li key={p} className="flex items-center gap-2.5 text-sm text-slate-700">
-                          <Check className="h-4 w-4 shrink-0 text-brand-600" /> {p}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+          <SectionHeading eyebrow="Sample pages" title="Look inside – guide by guide" description="Tap a guide to see its real pages." testId="combo6-samples" />
+          <div className="mt-8 flex gap-2 overflow-x-auto pb-2 sm:flex-wrap sm:justify-center sm:overflow-visible" data-testid="combo6-video-tabs">
+            {GUIDES.map((g) => {
+              const on = g.key === activeGuide;
+              return (
+                <button
+                  key={g.key}
+                  type="button"
+                  onClick={() => setActiveGuide(g.key)}
+                  aria-pressed={on}
+                  data-testid={`combo6-vtab-${g.key}`}
+                  className={`flex shrink-0 items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-bold transition-colors duration-200 sm:text-sm ${on ? "border-transparent text-white" : "border-slate-300 bg-white text-slate-600 hover:border-slate-400"}`}
+                  style={on ? { backgroundColor: g.color } : undefined}
+                >
+                  <img src={g.cover} alt="" className="h-7 w-7 rounded-full object-cover" loading="lazy" />
+                  {g.tab}
+                </button>
+              );
+            })}
+          </div>
+          <div className="mt-8 grid items-center gap-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-card-hover sm:p-10 lg:grid-cols-[auto_1fr]" data-testid="combo6-video-panel">
+            <div className="mx-auto w-[230px] sm:w-[260px]">
+              <div className="rounded-[2.6rem] bg-ink-surface p-2.5 shadow-2xl">
+                <div className="relative overflow-hidden rounded-[2rem] bg-black" style={{ aspectRatio: "9/16" }}>
+                  <div className="absolute left-1/2 top-2 z-10 h-4 w-20 -translate-x-1/2 rounded-full bg-ink-surface" />
+                  {nearSamples ? (
+                    <video
+                      key={activeGuideData.key}
+                      ref={videoRef}
+                      className="c6-fade h-full w-full object-cover"
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      preload="metadata"
+                      poster={activeGuideData.cover}
+                      src={activeGuideData.video}
+                      data-testid="combo6-video-player"
+                    />
+                  ) : (
+                    <img src={activeGuideData.cover} alt={activeGuideData.title} className="h-full w-full object-cover" loading="lazy" />
+                  )}
                 </div>
-              </TabsContent>
-            ))}
-          </Tabs>
+              </div>
+            </div>
+            <div className="text-center lg:text-left">
+              <span className="inline-block rounded-full px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-white" style={{ backgroundColor: activeGuideData.color }}>
+                {activeGuideData.pages || "Quick-reference"}
+              </span>
+              <h3 className="mt-3 font-display text-2xl font-extrabold tracking-tight text-ink" data-testid="combo6-video-title">
+                {activeGuideData.title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">{activeGuideData.desc}</p>
+              <div className="mt-4 flex flex-wrap justify-center gap-2 lg:justify-start">
+                {activeGuideData.tags.map((t) => (
+                  <span key={t} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700">
+                    {t}
+                  </span>
+                ))}
+              </div>
+              <button
+                onClick={scrollToPricing}
+                data-testid="combo6-sample-cta"
+                className="mt-6 inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-3.5 font-display text-sm font-extrabold text-white transition-colors duration-200 hover:bg-brand-700"
+              >
+                Get this + 5 more guides – {formatINR(comboPrice)} <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 

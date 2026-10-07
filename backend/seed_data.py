@@ -754,7 +754,8 @@ MEDICAL_6_COMBO_PRODUCT = {
     "gallery": [
         "/samples/combo-6/bundle-6-books.png",
         "/samples/combo-6/cover-disease.png",
-        "/samples/med-medicine-cover.webp",
+        "/samples/combo-6/cover-medicine.png",
+        "/samples/combo-6/cover-lab-report.png",
         "/samples/combo-6/cover-emergency.png",
         "/samples/combo-6/cover-ecg.png",
         "/samples/combo-6/cover-ayurvedic.png",
@@ -836,10 +837,17 @@ MEDICAL_6_COMBO_PRODUCT = {
 }
 
 
+_COMBO6_COVERS = {
+    "ct-mri-xray-guide": "/samples/combo-6/cover-ct-scan.png",
+    "radiology-guide": "/samples/combo-6/cover-radiology.png",
+}
+
+
 def _combo6_add_on(slug, title, tagline, description):
     """Add-on sold ONLY alongside the 6 PDF combo — hidden from every other listing."""
     doc = _add_on(slug, title, 149, tagline, description)
     doc["combo6_only"] = True
+    doc["cover_image"] = _COMBO6_COVERS.get(slug, "")
     return doc
 
 
