@@ -193,8 +193,16 @@ async def get_add_ons_combo():
 
 @api_router.get("/add-ons")
 async def list_add_ons():
-    """Add-on guides — purchasable at checkout, hidden from store listings."""
-    docs = await db.products.find({"status": "published", "is_add_on": True, "is_combo": {"$ne": True}}).sort("editions.digital.price", 1).to_list(50)
+    """Add-on guides — purchasable at checkout, hidden from store listings.
+    combo6_only add-ons are excluded: they are sold only on the 6-PDF combo page."""
+    docs = await db.products.find({"status": "published", "is_add_on": True, "is_combo": {"$ne": True}, "combo6_only": {"$ne": True}}).sort("editions.digital.price", 1).to_list(50)
+    return [serialize_doc(d) for d in docs]
+
+
+@api_router.get("/combo-6/add-ons")
+async def list_combo6_add_ons():
+    """Add-ons sold only alongside the Ledgerkit 6 PDF Medical Combo."""
+    docs = await db.products.find({"status": "published", "combo6_only": True}).sort("editions.digital.price", 1).to_list(10)
     return [serialize_doc(d) for d in docs]
 
 
@@ -499,8 +507,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 @app.on_event("startup")
 async def seed_database():
     await db.products.create_index("slug", unique=True)
-    from seed_data import ADD_ON_PRODUCTS, BOOKKEEPING_PRODUCT, COMBO_PRODUCT
-    for product_doc in [META_ADS_DECODE_PRODUCT, AI_IDEAS_PRODUCT, PROMPT_GUIDE_PRODUCT, BUNDLE_PRODUCT, MEDICAL_BUNDLE_PRODUCT, BOOKKEEPING_PRODUCT, *ADD_ON_PRODUCTS, COMBO_PRODUCT]:
+    from seed_data import ADD_ON_PRODUCTS, BOOKKEEPING_PRODUCT, COMBO_PRODUCT, MEDICAL_6_COMBO_PRODUCT, COMBO6_ADD_ON_PRODUCTS
+    for product_doc in [META_ADS_DECODE_PRODUCT, AI_IDEAS_PRODUCT, PROMPT_GUIDE_PRODUCT, BUNDLE_PRODUCT, MEDICAL_BUNDLE_PRODUCT, BOOKKEEPING_PRODUCT, MEDICAL_6_COMBO_PRODUCT, *ADD_ON_PRODUCTS, *COMBO6_ADD_ON_PRODUCTS, COMBO_PRODUCT]:
         doc = dict(product_doc)
         doc["created_at"] = datetime.now(timezone.utc).isoformat()
         await db.products.update_one({"slug": doc["slug"]}, {"$set": doc}, upsert=True)

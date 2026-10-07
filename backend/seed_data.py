@@ -744,3 +744,114 @@ COMBO_PRODUCT = {
         },
     },
 }
+
+
+MEDICAL_6_COMBO_PRODUCT = {
+    "slug": "medical-6-pdf-combo",
+    "title": "Ledgerkit 6 PDF Medical Combo",
+    "short_title": "6 PDF Medical Combo",
+    "cover_image": "/samples/combo-6/bundle-6-books.png",
+    "gallery": [
+        "/samples/combo-6/bundle-6-books.png",
+        "/samples/combo-6/cover-disease.png",
+        "/samples/med-medicine-cover.webp",
+        "/samples/combo-6/cover-emergency.png",
+        "/samples/combo-6/cover-ecg.png",
+        "/samples/combo-6/cover-ayurvedic.png",
+    ],
+    "tagline": "Diseases, medicines, lab reports, emergencies, ECG and Ayurveda — six visual quick-reference guides in one instant download.",
+    "description": (
+        "Six practical medical quick-reference guides in one combo: Disease Reference (120+ conditions), "
+        "Medicine Reference, Lab Report Decode (86 pages), Emergency Medical Guide (73 pages), ECG Reading "
+        "Guide (59 pages) and Ayurvedic Medicine Guide (78 pages, English + Hindi). Visual diagrams, structured "
+        "tables and easy-to-read pages built for study and revision on your phone, tablet or laptop. "
+        "Educational reference only — not a prescription or treatment guide."
+    ),
+    "category": "health",
+    "product_type": "Combo",
+    "format": "Digital PDF (6 guides)",
+    "delivery_method": "Instant digital access after successful payment — download links emailed to you",
+    "cta_text": "Download all 6",
+    "currency": "INR",
+    "regular_price": 645,
+    "sale_price": 297,
+    "featured": True,
+    "is_new": True,
+    "bestseller": False,
+    "status": "published",
+    "offer_end": None,
+    "download_files": [
+        {"title": "Disease Reference Guide", "url": f"{SITE_BASE}/downloads/diseases-reference-book.pdf"},
+        {"title": "Medicine Reference Guide", "url": f"{SITE_BASE}/downloads/medicine-reference-guide.pdf"},
+        {"title": "Lab Report Decode", "url": f"{SITE_BASE}/downloads/Lab-Reports-Decoded-2026.pdf"},
+        {"title": "Emergency Medical Guide", "url": f"{SITE_BASE}/downloads/Emergency_Quick_Reference_Guide.pdf"},
+        {"title": "ECG Reading Guide", "url": f"{SITE_BASE}/downloads/ECG_Reading_Guide.pdf"},
+        {"title": "Ayurvedic Medicine Guide", "url": f"{SITE_BASE}/downloads/Ayurvedic_Medicine_Guide.pdf"},
+    ],
+    "whats_included": [
+        "Disease Reference Guide — 120+ common diseases",
+        "Medicine Reference Guide — drug class, uses, side effects",
+        "Lab Report Decode — 86 pages",
+        "Emergency Medical Guide — 73 pages",
+        "ECG Reading Guide — 59 pages",
+        "Ayurvedic Medicine Guide — 78 pages, English + Hindi",
+    ],
+    "key_benefits": [
+        "Visual, quick-reference format for study and revision",
+        "Instant PDF — read on mobile, tablet or laptop",
+        "One-time payment — all 6 guides together",
+    ],
+    "bonuses": [],
+    "curriculum": [],
+    "sample_pages": [],
+    "who_for": [
+        {"title": "MBBS · BAMS · BHMS", "text": "students who want fast revision references"},
+        {"title": "Nursing & Paramedical", "text": "students building clinical quick-reference skills"},
+        {"title": "B.Pharm / D.Pharm & Interns", "text": "who need medicines, labs and ECG at a glance"},
+    ],
+    "not_for": [],
+    "faqs": [
+        {"q": "Is this a printed book?", "a": "No — these are instant PDF guides you can read on mobile, tablet and laptop."},
+        {"q": "How will I get the PDFs?", "a": "Right after payment your download page opens instantly and the PDF links are delivered to your email."},
+        {"q": "Who is it for?", "a": "MBBS, BAMS, BHMS, nursing, pharmacy (B.Pharm / D.Pharm), paramedical students and interns."},
+        {"q": "Can I buy add-ons later?", "a": "No — add-ons can only be purchased together with the 6 PDF combo on this page."},
+        {"q": "Refund policy?", "a": "These are digital products with instant access — no refunds once the PDFs are downloaded."},
+        {"q": "Can I use it for treatment decisions?", "a": "No. These are educational quick-reference guides only — they do not replace textbooks, clinical training or a qualified doctor."},
+    ],
+    "editions": {
+        "digital": {
+            "label": "6 PDF Combo",
+            "badge": "Launch Offer",
+            "price": 297,
+            "cta": "Download all 6",
+            "note": "One-time payment • Instant PDF access",
+            "checkout_url": "",
+            "features": [
+                "All 6 medical PDF guides",
+                "Instant download + emailed links",
+                "Mobile, tablet & laptop friendly",
+            ],
+        },
+    },
+}
+
+
+def _combo6_add_on(slug, title, tagline, description):
+    """Add-on sold ONLY alongside the 6 PDF combo — hidden from every other listing."""
+    doc = _add_on(slug, title, 149, tagline, description)
+    doc["combo6_only"] = True
+    return doc
+
+
+COMBO6_ADD_ON_PRODUCTS = [
+    _combo6_add_on(
+        "ct-mri-xray-guide", "CT Scan, MRI & X-Ray Guide",
+        "Understand common imaging — what CT, MRI and X-Ray show, when each is used and how to read the basics.",
+        "An imaging quick-reference covering CT scans, MRI and X-Rays — what each modality shows, common findings and how reports are structured. Educational reference only. PDF file pending upload.",
+    ),
+    _combo6_add_on(
+        "radiology-guide", "Radiology Guide",
+        "Radiology essentials for students — modalities, positioning basics and reading common studies.",
+        "A radiology quick-reference for students covering imaging modalities, basic positioning and how to approach common studies. Educational reference only. PDF file pending upload.",
+    ),
+]
