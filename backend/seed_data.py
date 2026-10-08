@@ -750,15 +750,15 @@ MEDICAL_6_COMBO_PRODUCT = {
     "slug": "medical-6-pdf-combo",
     "title": "Ledgerkit 6 PDF Medical Combo",
     "short_title": "6 PDF Medical Combo",
-    "cover_image": "/samples/combo-6/bundle-6-books.png",
+    "cover_image": "/samples/combo-6/bundle-6-books.webp",
     "gallery": [
-        "/samples/combo-6/bundle-6-books.png",
-        "/samples/combo-6/cover-disease.png",
-        "/samples/combo-6/cover-medicine.png",
-        "/samples/combo-6/cover-lab-report.png",
-        "/samples/combo-6/cover-emergency.png",
-        "/samples/combo-6/cover-ecg.png",
-        "/samples/combo-6/cover-ayurvedic.png",
+        "/samples/combo-6/bundle-6-books.webp",
+        "/samples/combo-6/cover-disease.webp",
+        "/samples/combo-6/cover-medicine.webp",
+        "/samples/combo-6/cover-lab-report.webp",
+        "/samples/combo-6/cover-emergency.webp",
+        "/samples/combo-6/cover-ecg.webp",
+        "/samples/combo-6/cover-ayurvedic.webp",
     ],
     "tagline": "Diseases, medicines, lab reports, emergencies, ECG and Ayurveda — six visual quick-reference guides in one instant download.",
     "description": (
@@ -838,8 +838,8 @@ MEDICAL_6_COMBO_PRODUCT = {
 
 
 _COMBO6_COVERS = {
-    "ct-mri-xray-guide": "/samples/combo-6/cover-ct-scan.png",
-    "radiology-guide": "/samples/combo-6/cover-radiology.png",
+    "ct-mri-xray-guide": "/samples/combo-6/cover-ct-scan.webp",
+    "radiology-guide": "/samples/combo-6/cover-radiology.webp",
 }
 
 

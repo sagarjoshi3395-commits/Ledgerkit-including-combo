@@ -1,24 +1,33 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import "@/App.css";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Home from "@/pages/Home";
-import Products from "@/pages/Products";
-import ProductDetail from "@/pages/ProductDetail";
-import MetaAdsDecode from "@/pages/MetaAdsDecode";
-import MedicalLanding from "@/pages/MedicalLanding";
-import MedicalCombo6 from "@/pages/MedicalCombo6";
-import BookkeepingLanding from "@/pages/BookkeepingLanding";
-import About from "@/pages/About";
-import Contact from "@/pages/Contact";
-import FaqPage from "@/pages/FaqPage";
-import LegalPage from "@/pages/LegalPage";
-import OrderSuccess from "@/pages/OrderSuccess";
-import Admin from "@/pages/Admin";
-import NotFound from "@/pages/NotFound";
 import { trackPageView, getStoredUtms } from "@/lib/analytics";
+
+const Products = lazy(() => import("@/pages/Products"));
+const ProductDetail = lazy(() => import("@/pages/ProductDetail"));
+const MetaAdsDecode = lazy(() => import("@/pages/MetaAdsDecode"));
+const MedicalLanding = lazy(() => import("@/pages/MedicalLanding"));
+const MedicalCombo6 = lazy(() => import("@/pages/MedicalCombo6"));
+const BookkeepingLanding = lazy(() => import("@/pages/BookkeepingLanding"));
+const About = lazy(() => import("@/pages/About"));
+const Contact = lazy(() => import("@/pages/Contact"));
+const FaqPage = lazy(() => import("@/pages/FaqPage"));
+const LegalPage = lazy(() => import("@/pages/LegalPage"));
+const OrderSuccess = lazy(() => import("@/pages/OrderSuccess"));
+const Admin = lazy(() => import("@/pages/Admin"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
+
+function PageFallback() {
+  return (
+    <div className="flex min-h-[60vh] items-center justify-center" data-testid="route-loading">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-brand-600" />
+    </div>
+  );
+}
 
 function ScrollAndTrack() {
   const location = useLocation();
@@ -40,6 +49,7 @@ function App() {
       <BrowserRouter>
         <ScrollAndTrack />
         <Navbar />
+        <Suspense fallback={<PageFallback />}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
@@ -56,6 +66,7 @@ function App() {
           <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
         <Footer />
         <Toaster position="top-center" richColors />
       </BrowserRouter>

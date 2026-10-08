@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, ShieldCheck, Download, Zap, BookOpen, Stethoscope, ArrowRight, Loader2, Mail, Timer } from "lucide-react";
+import { Check, ShieldCheck, Download, Zap, BookOpen, Stethoscope, ArrowRight, Loader2, Mail, Timer, Smartphone, Lock } from "lucide-react";
 import { api, formatINR } from "@/lib/api";
 import { useOfferTimer } from "@/lib/offerTimer";
 import { toast } from "sonner";
@@ -14,12 +14,12 @@ const FALLBACK_PRICE = 297;
 const VIDEO_DIR = "/samples/combo-6/videos";
 
 const GUIDES = [
-  { key: "disease", tab: "Disease", title: "Disease Reference Guide", cover: "/samples/combo-6/cover-disease.png", video: `${VIDEO_DIR}/disease_reference_guide_page_flow_web.mp4`, color: "#2563EB", desc: "120+ common diseases: causes, symptoms, diagnosis, treatment overview.", points: ["120+ common diseases", "Causes & symptoms", "Diagnosis & treatment overview"], tags: ["120+ diseases", "Causes & symptoms", "Diagnosis", "Treatment overview"] },
-  { key: "medicine", tab: "Medicine", title: "Medicine Reference Guide", cover: "/samples/combo-6/cover-medicine.png", video: `${VIDEO_DIR}/medicine_reference_guide_page_flow_web.mp4`, color: "#6D28D9", desc: "Common medicines: drug class, uses, side effects, key points.", points: ["Drug class & uses", "Side effects", "Key points at a glance"], tags: ["Drug classes", "Uses & dosage", "Side effects", "Important notes"] },
-  { key: "lab", tab: "Lab Report", title: "Lab Report Decode", pages: "86 pages", cover: "/samples/combo-6/cover-lab-report.png", video: `${VIDEO_DIR}/lab_report_decode_page_flow_web.mp4`, color: "#1D4ED8", desc: "CBC, liver, kidney, thyroid, ABG and report patterns.", points: ["CBC, LFT, KFT, thyroid", "ABG interpretation", "Common report patterns"], tags: ["CBC, LFT & KFT", "Thyroid & ABG", "Report patterns", "Normal vs abnormal"] },
-  { key: "emergency", tab: "Emergency", title: "Emergency Medical Guide", pages: "73 pages", cover: "/samples/combo-6/cover-emergency.png", video: `${VIDEO_DIR}/emergency_medical_guide_page_flow_web.mp4`, color: "#DC2626", desc: "ABCDE, CPR, shock, triage, drug quick reference.", points: ["ABCDE & CPR", "Shock & triage", "Emergency drug quick reference"], tags: ["ABCDE approach", "CPR steps", "Shock & triage", "Drug quick reference"] },
-  { key: "ecg", tab: "ECG", title: "ECG Reading Guide", pages: "59 pages", cover: "/samples/combo-6/cover-ecg.png", video: `${VIDEO_DIR}/ecg_reading_guide_page_flow_web.mp4`, color: "#E11D48", desc: "ECG basics, rhythms, AV blocks, step-by-step approach.", points: ["ECG basics", "Rhythms & AV blocks", "Step-by-step approach"], tags: ["Rhythm strips", "AV blocks", "Step-by-step method", "Real examples"] },
-  { key: "ayurvedic", tab: "Ayurvedic", title: "Ayurvedic Medicine Guide", pages: "78 pages", cover: "/samples/combo-6/cover-ayurvedic.png", video: `${VIDEO_DIR}/ayurvedic_medicine_guide_page_flow_web.mp4`, color: "#16A34A", desc: "Common Ayurvedic medicines and uses, English + Hindi.", points: ["Common Ayurvedic medicines", "Uses & dosage guidance", "English + Hindi"], tags: ["Common medicines", "Uses & benefits", "Dosage guidance", "English + Hindi"] },
+  { key: "disease", tab: "Disease", title: "Disease Reference Guide", cover: "/samples/combo-6/cover-disease.webp", video: `${VIDEO_DIR}/disease_reference_guide_page_flow_web.mp4`, color: "#2563EB", desc: "120+ common diseases: causes, symptoms, diagnosis, treatment overview.", points: ["120+ common diseases", "Causes & symptoms", "Diagnosis & treatment overview"], tags: ["120+ diseases", "Causes & symptoms", "Diagnosis", "Treatment overview"] },
+  { key: "medicine", tab: "Medicine", title: "Medicine Reference Guide", cover: "/samples/combo-6/cover-medicine.webp", video: `${VIDEO_DIR}/medicine_reference_guide_page_flow_web.mp4`, color: "#6D28D9", desc: "Common medicines: drug class, uses, side effects, key points.", points: ["Drug class & uses", "Side effects", "Key points at a glance"], tags: ["Drug classes", "Uses & dosage", "Side effects", "Important notes"] },
+  { key: "lab", tab: "Lab Report", title: "Lab Report Decode", pages: "86 pages", cover: "/samples/combo-6/cover-lab-report.webp", video: `${VIDEO_DIR}/lab_report_decode_page_flow_web.mp4`, color: "#1D4ED8", desc: "CBC, liver, kidney, thyroid, ABG and report patterns.", points: ["CBC, LFT, KFT, thyroid", "ABG interpretation", "Common report patterns"], tags: ["CBC, LFT & KFT", "Thyroid & ABG", "Report patterns", "Normal vs abnormal"] },
+  { key: "emergency", tab: "Emergency", title: "Emergency Medical Guide", pages: "73 pages", cover: "/samples/combo-6/cover-emergency.webp", video: `${VIDEO_DIR}/emergency_medical_guide_page_flow_web.mp4`, color: "#DC2626", desc: "ABCDE, CPR, shock, triage, drug quick reference.", points: ["ABCDE & CPR", "Shock & triage", "Emergency drug quick reference"], tags: ["ABCDE approach", "CPR steps", "Shock & triage", "Drug quick reference"] },
+  { key: "ecg", tab: "ECG", title: "ECG Reading Guide", pages: "59 pages", cover: "/samples/combo-6/cover-ecg.webp", video: `${VIDEO_DIR}/ecg_reading_guide_page_flow_web.mp4`, color: "#E11D48", desc: "ECG basics, rhythms, AV blocks, step-by-step approach.", points: ["ECG basics", "Rhythms & AV blocks", "Step-by-step approach"], tags: ["Rhythm strips", "AV blocks", "Step-by-step method", "Real examples"] },
+  { key: "ayurvedic", tab: "Ayurvedic", title: "Ayurvedic Medicine Guide", pages: "78 pages", cover: "/samples/combo-6/cover-ayurvedic.webp", video: `${VIDEO_DIR}/ayurvedic_medicine_guide_page_flow_web.mp4`, color: "#16A34A", desc: "Common Ayurvedic medicines and uses, English + Hindi.", points: ["Common Ayurvedic medicines", "Uses & dosage guidance", "English + Hindi"], tags: ["Common medicines", "Uses & benefits", "Dosage guidance", "English + Hindi"] },
 ];
 
 const AUDIENCE = ["MBBS", "BAMS", "BHMS", "Nursing", "B.Pharm / D.Pharm", "Paramedical", "Interns"];
@@ -200,10 +200,14 @@ export default function MedicalCombo6() {
           <Reveal className="relative">
             <div className="relative mx-auto max-w-md lg:max-w-none">
               <img
-                src="/samples/combo-6/bundle-6-books.png"
+                src="/samples/combo-6/bundle-6-books.webp"
                 alt="Ledgerkit 6 medical PDF guides combo"
                 className="w-full rounded-2xl border border-white/10 shadow-2xl"
+                width="1100"
+                height="825"
                 loading="eager"
+                fetchPriority="high"
+                decoding="async"
                 data-testid="combo6-hero-image"
               />
               <span className="c6-float absolute -right-3 -top-3 flex h-20 w-20 rotate-6 flex-col items-center justify-center rounded-full bg-brand-400 text-center font-display font-extrabold leading-tight text-ink-surface shadow-lg" data-testid="combo6-price-badge">
@@ -218,6 +222,28 @@ export default function MedicalCombo6() {
               </span>
             </div>
           </Reveal>
+        </div>
+      </section>
+
+      {/* TRUST BAND */}
+      <section className="border-b border-slate-100 bg-white px-4 py-6 sm:px-6 lg:px-8" data-testid="combo6-trust-band">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-4 sm:grid-cols-4">
+          {[
+            { icon: Lock, title: "Secure checkout", text: "Razorpay encrypted" },
+            { icon: Download, title: "Instant delivery", text: "PDFs the moment you pay" },
+            { icon: Smartphone, title: "All devices", text: "Mobile, tablet & laptop" },
+            { icon: Mail, title: "Email support", text: "We reply to every query" },
+          ].map((t) => (
+            <div key={t.title} className="flex items-center gap-3" data-testid={`combo6-trust-${t.title.toLowerCase().split(" ")[0]}`}>
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-100">
+                <t.icon className="h-4 w-4 text-brand-700" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-xs font-bold text-ink sm:text-sm">{t.title}</p>
+                <p className="truncate text-[11px] text-slate-500">{t.text}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -425,6 +451,13 @@ export default function MedicalCombo6() {
               <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-slate-500">
                 <ShieldCheck className="h-3.5 w-3.5 text-brand-600" /> UPI · Cards · Netbanking — secure payment via Razorpay
               </p>
+              <div className="mt-3 flex flex-wrap items-center justify-center gap-2" data-testid="combo6-payment-methods">
+                {["UPI", "Visa", "Mastercard", "RuPay", "Netbanking"].map((m) => (
+                  <span key={m} className="rounded-md border border-slate-200 bg-white px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                    {m}
+                  </span>
+                ))}
+              </div>
             </div>
           </Reveal>
         </div>

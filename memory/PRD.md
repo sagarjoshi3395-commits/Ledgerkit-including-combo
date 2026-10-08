@@ -187,3 +187,10 @@ See /app/memory/test_credentials.md.
 - backend/.env: RESEND_API_KEY (owner's key) + RESEND_FROM="onboarding@resend.dev". Key authenticated OK.
 - Live test: delivery email SENT via owner's Resend account (id 01a1190a-...) — visible in Resend dashboard Logs.
 - ⚠️ LIMITATION (Resend rule): unverified domain → can only send to the Resend ACCOUNT OWNER email (s84328548@gmail.com). Buyer emails to other addresses get 403 until the owner verifies a domain at resend.com/domains and RESEND_FROM is updated (e.g. "LedgerKit <orders@yourdomain>"). Order-success page download buttons are unaffected.
+
+## Update (v36 — Performance + conversion pass)
+- Images: all combo-6 covers + hero converted PNG→WebP (resized): hero 1.5MB→132KB, covers ~220KB→~28KB; total combo-6 image payload 3.6MB→360KB. Old PNGs removed; refs updated in MedicalCombo6.jsx + seed_data.py gallery/add-on covers.
+- Hero <img>: width/height set (CLS), loading=eager, fetchPriority=high, decoding=async.
+- Code-splitting: App.js routes now React.lazy + Suspense (PageFallback spinner) — only Home + shell in initial bundle; every other page loads on demand. Smaller first paint.
+- Conversion (honest, no fabricated stats): new trust band under hero (Secure checkout/Razorpay, Instant delivery, All devices, Email support); payment-method pills (UPI/Visa/Mastercard/RuPay/Netbanking) under pricing CTA.
+- Verified: desktop render clean (trust band + floating hero chips + countdown + price strike), no overflow; webp assets serve 200; frontend compiles with no warnings.
