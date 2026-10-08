@@ -1,0 +1,21 @@
+{
+  "summary": "Backend-only test of Razorpay-simulated-signature purchase-to-email flow. All 3 pytest cases PASS (7.23s). (1) Single product 'ai-business-ideas-2026': create-order returned razorpay_order_id + key_id=rzp_live_TlI6IGn5mJOM2y; verify with HMAC-SHA256 signature returned {ok:true,status:paid,delivered:true}; GET /api/orders/{id} shows status=paid, delivery_status=sent, delivered_to=delivered@resend.dev, downloads[0].download_url returns HTTP 200. (2) Combo 'medical-6-pdf-combo' delivers exactly 6 downloads with delivery_status=sent. (3) Wrong signature returns 400 and order is marked status=payment_failed with no email dispatch. Backend logs confirm 2x POST https://integrations.emergentagent.com/api/v1/email/send -> 202 Accepted (one per successful verify) and zero sends for the bad-signature case. The expected Razorpay 'payment.fetch id does not exist' warning for the fake payment id is present and non-blocking.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_purchase_email.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "email_service dispatch is awaited inside verify handler synchronously; if Emergent email proxy latency spikes, verify response time will grow. Consider BackgroundTasks for email dispatch so Razorpay-side callback acknowledgement stays snappy.",
+    "RAZORPAY_KEY_SECRET is quoted in .env; current code strips quotes implicitly via dotenv — fine, but worth a comment to prevent accidental breakage."
+  ],
+  "updated_files": ["/app/backend/tests/test_purchase_email.py"],
+  "success_rate": {"backend": "100% (3/3)", "frontend": "n/a (not tested per request)"},
+  "test_credentials": "none (buyer email delivered@resend.dev used as sanctioned test recipient)",
+  "seed_data_creation": "Created 3 test orders in Mongo via live API (two paid + one payment_failed). Buyer email delivered@resend.dev.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "To re-test purchase-to-email without charging real money: use HMAC-SHA256(RAZORPAY_KEY_SECRET, '<razorpay_order_id>|<fake_payment_id>') and POST to /api/checkout/verify. Backend sends email via Emergent proxy and the httpx log line 'POST https://integrations.emergentagent.com/api/v1/email/send 202 Accepted' confirms dispatch. The Razorpay SDK warning about the fake pay_id is expected and non-fatal."
+}

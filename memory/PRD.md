@@ -22,8 +22,9 @@
 - Managed delivery email configured (EMERGENT_EMAIL_KEY, EMAIL_FROM_NAME=LedgerKit)
 - User's own Resend API key NOT used (their domain isn't verified in Resend, so it can't email arbitrary buyers; managed proxy needs no Hostinger/nameserver changes)
 
-## NOT VERIFIED / BLOCKED
-- Full paid flow (signature verification → order-success download buttons → delivery email) requires a REAL payment — live keys charge real money, no test cards in live mode. Needs one real purchase to confirm.
+## VERIFIED (2026-10-08, testing_agent iteration_5 — 3/3 pass)
+- Purchase→email flow works: verified payment marks order paid, delivery email sent via managed proxy (202 Accepted), order-success downloads return HTTP 200; combo delivers all 6 PDFs; wrong signature → 400 + payment_failed, no email.
+- Remaining unverified: only a REAL live payment itself (Razorpay popup completion) — everything after payment is confirmed working.
 - Physiotherapy Clinical Guide PDF still missing (add-on has no download)
 - Phase 2: Razorpay webhook (needs webhook secret from dashboard)
 - Phase 3: deploy to owner's domain, update SITE_BASE_URL
