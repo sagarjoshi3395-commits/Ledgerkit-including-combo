@@ -194,3 +194,10 @@ See /app/memory/test_credentials.md.
 - Code-splitting: App.js routes now React.lazy + Suspense (PageFallback spinner) — only Home + shell in initial bundle; every other page loads on demand. Smaller first paint.
 - Conversion (honest, no fabricated stats): new trust band under hero (Secure checkout/Razorpay, Instant delivery, All devices, Email support); payment-method pills (UPI/Visa/Mastercard/RuPay/Netbanking) under pricing CTA.
 - Verified: desktop render clean (trust band + floating hero chips + countdown + price strike), no overflow; webp assets serve 200; frontend compiles with no warnings.
+
+## Update (v37 — Hero redesign, light + visual)
+- Replaced dark navy hero with a light, visual-first hero (per owner: "blue blue, text text zyada lag raha tha"): light gradient bg with soft violet/yellow glows, compact text (headline + 1-line sub + 3 icon chips), price row + yellow CTA + timer.
+- Top bar switched navy→yellow (offer-strip feel) with dark timer pill.
+- New interactive cover strip under hero: all 6 guide covers (grid-cols-3 mobile / 6 desktop); tapping a cover selects that guide AND smooth-scrolls to the Sample Pages video.
+- Hero image now sits on a glowing white card with violet price badge (strike ₹1,699 → ₹297) + white floating chips.
+- Removed BUY_POINTS checklist + unused Check import. Verified desktop render clean, no overflow; mobile-safe by construction (chips sm:hidden, section overflow-hidden).

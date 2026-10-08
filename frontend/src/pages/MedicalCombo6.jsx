@@ -45,12 +45,6 @@ const FAQS = [
   { q: "Can I use it for treatment decisions?", a: "No. These are educational quick-reference guides only. They do not replace textbooks, clinical training or a qualified doctor." },
 ];
 
-const BUY_POINTS = [
-  "Disease, Medicine, Lab Report, Emergency, ECG & Ayurvedic guides",
-  "Visual, quick-reference format for study and revision",
-  "Instant PDF — mobile, tablet or laptop",
-];
-
 export default function MedicalCombo6() {
   const [combo, setCombo] = useState(null);
   const [addOns, setAddOns] = useState([]);
@@ -140,11 +134,11 @@ export default function MedicalCombo6() {
         .c6-glow-violet{animation:c6glowV 2s ease-out infinite}
       `}</style>
       {/* TOP BAR */}
-      <div className="bg-ink-surface px-4 py-2.5 text-center" data-testid="combo6-topbar">
-        <p className="font-mono text-[11px] font-bold uppercase tracking-widest text-white">
-          Launch offer: 6 Medical PDF Guides for {formatINR(comboPrice)} <span className="text-slate-500 line-through">₹1,699</span> · <span className="text-brand-400">Instant download</span>
+      <div className="bg-brand-400 px-4 py-2.5 text-center" data-testid="combo6-topbar">
+        <p className="font-mono text-[11px] font-bold uppercase tracking-widest text-ink-surface">
+          Launch offer: 6 Medical PDF Guides for {formatINR(comboPrice)} <span className="text-ink-surface/55 line-through">₹1,699</span> · Instant download
           {offerClock && (
-            <span className="c6-pulse ml-2 inline-flex items-center gap-1 rounded-full bg-brand-400 px-2 py-0.5 text-ink-surface" data-testid="combo6-topbar-timer">
+            <span className="c6-pulse ml-2 inline-flex items-center gap-1 rounded-full bg-ink-surface px-2 py-0.5 text-brand-400" data-testid="combo6-topbar-timer">
               <Timer className="h-3 w-3" /> Ends in <span className="tabular-nums">{offerClock}</span>
             </span>
           )}
@@ -152,32 +146,35 @@ export default function MedicalCombo6() {
       </div>
 
       {/* HERO */}
-      <section className="bg-ink-surface px-4 pb-16 pt-10 sm:px-6 sm:pt-14 lg:px-8" data-testid="combo6-hero">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-2 lg:gap-14">
+      <section className="relative overflow-hidden bg-gradient-to-b from-brand-50 via-white to-white px-4 pb-12 pt-10 sm:px-6 sm:pt-14 lg:px-8" data-testid="combo6-hero">
+        <div className="pointer-events-none absolute -left-28 top-8 h-72 w-72 rounded-full bg-brand-200/50 blur-3xl" />
+        <div className="pointer-events-none absolute -right-28 bottom-0 h-80 w-80 rounded-full bg-brand-400/25 blur-3xl" />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[1.05fr_1fr] lg:gap-14">
           <Reveal>
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 font-mono text-[10px] font-bold uppercase tracking-widest text-brand-400">
-              6 guides · one pack · one-time payment
+            <span className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white px-3.5 py-1.5 font-mono text-[10px] font-bold uppercase tracking-widest text-brand-700 shadow-subtle">
+              Launch offer · 6 guides · one pack
             </span>
-            <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl">
-              Six medical guides. <span className="text-brand-400">One instant download.</span>
+            <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.08] tracking-tight text-ink sm:text-5xl">
+              Six medical guides. <span className="text-brand-600">One instant download.</span>
             </h1>
-            <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-300">
-              Diseases, medicines, lab reports, emergencies, ECG and Ayurveda — explained with visual diagrams, structured tables and easy-to-read pages you can keep on your phone.
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-600">
+              Diseases, medicines, lab reports, emergencies, ECG &amp; Ayurveda — visual diagrams and quick-reference tables, made for revision on your phone.
             </p>
-            <ul className="mt-6 space-y-3">
-              {BUY_POINTS.map((p) => (
-                <li key={p} className="flex items-start gap-3 text-sm text-slate-200">
-                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-400/15">
-                    <Check className="h-3 w-3 text-brand-400" />
-                  </span>
-                  {p}
-                </li>
+            <div className="mt-6 flex flex-wrap gap-2">
+              {[
+                { icon: BookOpen, label: "6 complete guides" },
+                { icon: Zap, label: "Visual quick-reference" },
+                { icon: Download, label: "Instant PDF" },
+              ].map((c) => (
+                <span key={c.label} className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-subtle">
+                  <c.icon className="h-3.5 w-3.5 text-brand-600" /> {c.label}
+                </span>
               ))}
-            </ul>
-            <div className="mt-8 flex items-end gap-3">
-              <span className="font-display text-4xl font-extrabold text-white" data-testid="combo6-hero-price">{formatINR(comboPrice)}</span>
-              <span className="pb-1 text-lg text-slate-500 line-through">₹1,699</span>
-              <span className="mb-1 rounded-full bg-brand-400/15 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-brand-400">Save 82%</span>
+            </div>
+            <div className="mt-7 flex items-end gap-3">
+              <span className="font-display text-4xl font-extrabold text-ink" data-testid="combo6-hero-price">{formatINR(comboPrice)}</span>
+              <span className="pb-1 text-lg text-slate-400 line-through">₹1,699</span>
+              <span className="mb-1 rounded-full bg-emerald-100 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-emerald-700">Save 82%</span>
             </div>
             <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
               <button
@@ -188,21 +185,22 @@ export default function MedicalCombo6() {
                 Download all 6 — {formatINR(total)} <ArrowRight className="h-4 w-4" />
               </button>
               {offerClock && (
-                <span className="inline-flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-slate-300" data-testid="combo6-hero-timer">
-                  <Timer className="h-3.5 w-3.5 text-brand-400" /> Offer ends in <span className="tabular-nums text-brand-400">{offerClock}</span>
+                <span className="inline-flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-slate-500" data-testid="combo6-hero-timer">
+                  <Timer className="h-3.5 w-3.5 text-ember" /> Offer ends in <span className="tabular-nums text-ember">{offerClock}</span>
                 </span>
               )}
             </div>
-            <p className="mt-3 flex items-center gap-1.5 text-xs text-slate-400">
-              <ShieldCheck className="h-3.5 w-3.5 text-brand-400" /> Instant PDF access · Secure payment
+            <p className="mt-3 flex items-center gap-1.5 text-xs text-slate-500">
+              <ShieldCheck className="h-3.5 w-3.5 text-brand-600" /> Instant PDF access · Secure payment
             </p>
           </Reveal>
           <Reveal className="relative">
             <div className="relative mx-auto max-w-md lg:max-w-none">
+              <div className="absolute -inset-4 rounded-[2.2rem] bg-gradient-to-tr from-brand-600/15 via-brand-400/25 to-transparent blur-2xl" />
               <img
                 src="/samples/combo-6/bundle-6-books.webp"
                 alt="Ledgerkit 6 medical PDF guides combo"
-                className="w-full rounded-2xl border border-white/10 shadow-2xl"
+                className="relative w-full rounded-3xl border border-slate-200 bg-white shadow-2xl"
                 width="1100"
                 height="825"
                 loading="eager"
@@ -210,19 +208,43 @@ export default function MedicalCombo6() {
                 decoding="async"
                 data-testid="combo6-hero-image"
               />
-              <span className="c6-float absolute -right-3 -top-3 flex h-20 w-20 rotate-6 flex-col items-center justify-center rounded-full bg-brand-400 text-center font-display font-extrabold leading-tight text-ink-surface shadow-lg" data-testid="combo6-price-badge">
+              <span className="c6-float absolute -right-3 -top-3 flex h-20 w-20 rotate-6 flex-col items-center justify-center rounded-full bg-brand-600 text-center font-display font-extrabold leading-tight text-white shadow-lg" data-testid="combo6-price-badge">
                 <span className="text-[10px] line-through opacity-70">₹1,699</span>
                 <span className="text-lg">{formatINR(comboPrice)}</span>
               </span>
-              <span className="c6-chipfloat absolute -left-3 top-10 hidden items-center gap-2 rounded-xl border border-white/10 bg-ink-card/90 px-3.5 py-2 text-xs font-bold text-white shadow-xl backdrop-blur sm:flex">
-                <Download className="h-3.5 w-3.5 text-brand-400" /> Instant PDF
+              <span className="c6-chipfloat absolute -left-3 top-10 hidden items-center gap-2 rounded-xl border border-slate-200 bg-white/95 px-3.5 py-2 text-xs font-bold text-ink shadow-xl backdrop-blur sm:flex">
+                <Download className="h-3.5 w-3.5 text-brand-600" /> Instant PDF
               </span>
-              <span className="c6-chipfloat absolute -left-4 bottom-12 hidden items-center gap-2 rounded-xl border border-white/10 bg-ink-card/90 px-3.5 py-2 text-xs font-bold text-white shadow-xl backdrop-blur sm:flex" style={{ animationDelay: "1.6s" }}>
-                <BookOpen className="h-3.5 w-3.5 text-brand-400" /> 6 guides inside
+              <span className="c6-chipfloat absolute -left-4 bottom-12 hidden items-center gap-2 rounded-xl border border-slate-200 bg-white/95 px-3.5 py-2 text-xs font-bold text-ink shadow-xl backdrop-blur sm:flex" style={{ animationDelay: "1.6s" }}>
+                <BookOpen className="h-3.5 w-3.5 text-brand-600" /> 6 guides inside
               </span>
             </div>
           </Reveal>
         </div>
+        <Reveal className="relative mx-auto mt-12 max-w-6xl">
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6" data-testid="combo6-hero-covers">
+            {GUIDES.map((g) => (
+              <button
+                key={g.key}
+                type="button"
+                onClick={() => {
+                  setActiveGuide(g.key);
+                  samplesRef.current?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="group text-center"
+                data-testid={`combo6-hero-cover-${g.key}`}
+              >
+                <img
+                  src={g.cover}
+                  alt={g.title}
+                  className="mx-auto h-24 w-auto rounded-lg border border-slate-200 bg-white object-contain shadow-subtle transition-transform duration-200 group-hover:-translate-y-1.5"
+                  loading="lazy"
+                />
+                <p className="mt-1.5 truncate text-[10px] font-semibold text-slate-600 group-hover:text-brand-700">{g.tab}</p>
+              </button>
+            ))}
+          </div>
+        </Reveal>
       </section>
 
       {/* TRUST BAND */}
