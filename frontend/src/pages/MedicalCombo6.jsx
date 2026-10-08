@@ -281,7 +281,7 @@ export default function MedicalCombo6() {
         <style>{`@keyframes c6fade{from{opacity:0}to{opacity:1}}.c6-fade{animation:c6fade .3s ease}`}</style>
         <div className="mx-auto max-w-5xl">
           <SectionHeading eyebrow="Sample pages" title="Look inside – guide by guide" description="Tap a guide to see its real pages." testId="combo6-samples" />
-          <div className="mt-8 flex gap-2 overflow-x-auto pb-2 sm:flex-wrap sm:justify-center sm:overflow-visible" data-testid="combo6-video-tabs">
+          <div className="mt-8 grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:justify-center" data-testid="combo6-video-tabs">
             {GUIDES.map((g) => {
               const on = g.key === activeGuide;
               return (
@@ -291,11 +291,11 @@ export default function MedicalCombo6() {
                   onClick={() => setActiveGuide(g.key)}
                   aria-pressed={on}
                   data-testid={`combo6-vtab-${g.key}`}
-                  className={`flex shrink-0 items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-bold transition-colors duration-200 sm:text-sm ${on ? "border-transparent text-white" : "border-slate-300 bg-white text-slate-600 hover:border-slate-400"}`}
+                  className={`flex min-w-0 items-center justify-center gap-1.5 rounded-xl border px-2.5 py-2.5 text-[11px] font-bold transition-colors duration-200 sm:rounded-full sm:px-3.5 sm:text-sm ${on ? "border-transparent text-white" : "border-slate-300 bg-white text-slate-600 hover:border-slate-400"}`}
                   style={on ? { backgroundColor: g.color } : undefined}
                 >
-                  <img src={g.cover} alt="" className="h-7 w-7 rounded-full object-cover" loading="lazy" />
-                  {g.tab}
+                  <img src={g.cover} alt="" className="h-6 w-6 shrink-0 rounded-full object-cover sm:h-7 sm:w-7" loading="lazy" />
+                  <span className="truncate">{g.tab}</span>
                 </button>
               );
             })}
@@ -530,6 +530,10 @@ export default function MedicalCombo6() {
         busy={busy}
         productTitle="the 6 PDF Medical Combo"
         total={total}
+        addOns={addOns}
+        selectedAddOns={selected}
+        onToggleAddOn={toggleAddOn}
+        addOnPrice={addOnPrice}
       />
     </div>
   );
