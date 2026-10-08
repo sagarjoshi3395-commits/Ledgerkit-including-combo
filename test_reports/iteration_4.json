@@ -1,0 +1,22 @@
+{
+  "summary": "Frontend-only re-test of /medical-6-combo iteration-4 changes. All 7 acceptance criteria PASS: 6-tab grid-cols-3 all visible on mobile with no tab-row/page overflow; all 6 videos serve video/mp4 (HTTP 206 via Range), Medicine tab swaps src correctly; buyer-email dialog shows add-on tick rows with correct testids, Continue button total updates 297->446->595 as CT/Radiology toggled; pricing-card and dialog selections stay in sync bidirectionally; dialog fits mobile viewport (bbox 12..378 within 390), email+continue reachable; Meta Pixel fbq loaded with ID 3470309736541129 and no JS error; Razorpay iframe opens on Continue; hero price ₹297 with ₹1,699 strike, 9-min countdown present in topbar/hero/sticky; no horizontal page overflow at 390x844 nor 1920x800; all 6 tabs visible on desktop.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "MedicalCombo6.jsx is ~540 lines; still manageable but consider extracting GUIDES/FAQS/BUY_POINTS and the samples/pricing sections into subcomponents soon.",
+    "In BuyerEmailDialog, the DialogContent is scrollable (overflow-y-auto) but the mail icon span sits above DialogTitle visually without proper semantic grouping — minor a11y only."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a", "frontend": "100%"},
+  "test_credentials": "none required",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Known false-positive: urllib HEAD requests to /samples/combo-6/videos/*.mp4 return 403 (CloudFront user-agent/method). Use curl with Mozilla UA + Range header (returns 206 video/mp4) or test via browser video src. Razorpay iframe opens correctly in LIVE mode; dismiss, do not pay. localStorage key lk_offer_deadline controls the 9-min countdown; clear it before timer checks."
+}

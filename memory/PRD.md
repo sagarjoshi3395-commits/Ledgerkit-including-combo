@@ -173,3 +173,11 @@ See /app/memory/test_credentials.md.
 - Sticky checkout bar now on ALL screens (was mobile-only): MRP strike + ₹297 + live total + countdown + glowing Buy button.
 - Engagement animations: floating price badge + floating "Instant PDF"/"6 guides inside" chips, pulsing timer chips, glow rings on CTAs (c6float/c6chipfloat/c6pulse/c6glowY/c6glowV).
 - Tested (iteration_3): backend 15/15 incl. live-order test; frontend 100% — real Razorpay iframe opened & dismissed, timers tick 08:57→, no overflow desktop/mobile. Note: headless Chromium lacks H.264 so automated playback can't be verified; videos play in real browsers.
+
+## Update (v34 — 6th video, all-visible tabs, dialog add-ons, Meta Pixel, email verified)
+- Medicine page-flow video uploaded → all 6 Sample-Pages videos now live (HTTP 206 video/mp4).
+- Sample-Pages tab row: no longer horizontally sliding — now grid-cols-3 on mobile (all 6 tabs visible at once), wrapped pills on desktop.
+- Meta Pixel 3470309736541129 wired via REACT_APP_META_PIXEL_ID (index.html fbq injector); verified window.fbq loads with that ID, no JS error.
+- Add-on products (CT/MRI/X-Ray ₹149, Radiology ₹149) now ALSO appear as tick checkboxes inside the buyer-email checkout dialog, sharing selection state with the pricing card (bidirectional sync); Continue button total updates 297→446→595. Dialog made mobile-friendly (max-h-92vh, overflow-y-auto, w-calc(100vw-1.5rem)) — fits 390px, verified.
+- Automatic delivery email via managed Resend confirmed WORKING (test send returned provider id; fires on payment verify). EMERGENT_EMAIL_KEY active, from=LedgerKit, reply-to ledgerkitsupport@gmail.com.
+- Tested (iteration_4): frontend 100% (7/7). Live Razorpay modal opens at correct amount incl. add-ons.
