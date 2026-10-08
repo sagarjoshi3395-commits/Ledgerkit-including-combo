@@ -20,6 +20,7 @@
 - Catalog seeded & verified: 7 products, 5 add-ons, All-5 combo ₹299, medical 6-PDF combo
 - Razorpay LIVE keys configured (rzp_live_…) — verified: live order created via API (`order_TlQJ4s5vS2tnYV`) and Razorpay popup opens in UI with LedgerKit brand, ₹199, UPI/Cards
 - Managed delivery email configured (EMERGENT_EMAIL_KEY, EMAIL_FROM_NAME=LedgerKit)
+- Meta Pixel 3470309736541129 connected (REACT_APP_META_PIXEL_ID) — verified firing: fbevents.js loaded, signals/config ping sent, PageView tracked; Purchase event fires on order-success page
 - User's own Resend API key NOT used (their domain isn't verified in Resend, so it can't email arbitrary buyers; managed proxy needs no Hostinger/nameserver changes)
 
 ## VERIFIED (2026-10-08, testing_agent iteration_5 — 3/3 pass)
