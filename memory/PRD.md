@@ -181,3 +181,9 @@ See /app/memory/test_credentials.md.
 - Add-on products (CT/MRI/X-Ray ₹149, Radiology ₹149) now ALSO appear as tick checkboxes inside the buyer-email checkout dialog, sharing selection state with the pricing card (bidirectional sync); Continue button total updates 297→446→595. Dialog made mobile-friendly (max-h-92vh, overflow-y-auto, w-calc(100vw-1.5rem)) — fits 390px, verified.
 - Automatic delivery email via managed Resend confirmed WORKING (test send returned provider id; fires on payment verify). EMERGENT_EMAIL_KEY active, from=LedgerKit, reply-to ledgerkitsupport@gmail.com.
 - Tested (iteration_4): frontend 100% (7/7). Live Razorpay modal opens at correct amount incl. add-ons.
+
+## Update (v35 — Owner's own Resend account connected)
+- email_service.py now uses DIRECT Resend API (https://api.resend.com/emails, Bearer auth) when RESEND_API_KEY is set; falls back to Emergent managed proxy otherwise. Signature/guardrails unchanged, never-raise preserved.
+- backend/.env: RESEND_API_KEY (owner's key) + RESEND_FROM="onboarding@resend.dev". Key authenticated OK.
+- Live test: delivery email SENT via owner's Resend account (id 01a1190a-...) — visible in Resend dashboard Logs.
+- ⚠️ LIMITATION (Resend rule): unverified domain → can only send to the Resend ACCOUNT OWNER email (s84328548@gmail.com). Buyer emails to other addresses get 403 until the owner verifies a domain at resend.com/domains and RESEND_FROM is updated (e.g. "LedgerKit <orders@yourdomain>"). Order-success page download buttons are unaffected.

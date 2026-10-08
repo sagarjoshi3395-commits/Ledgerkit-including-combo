@@ -22,10 +22,13 @@ logger = logging.getLogger(__name__)
 # Emergent managed email proxy. CONSTANT — never read from env (survives deploy).
 EMAIL_BASE_URL = "https://integrations.emergentagent.com"
 EMAIL_KEY = os.environ.get("EMERGENT_EMAIL_KEY", "")
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
+RESEND_FROM = os.environ.get("RESEND_FROM", "onboarding@resend.dev")
+RESEND_URL = "https://api.resend.com/emails"
 EMAIL_FROM_NAME = os.environ.get("EMAIL_FROM_NAME", "LedgerKit")  # this app's OWN brand (G1)
 EMAIL_REPLY_TO = os.environ.get("EMAIL_REPLY_TO")
 
-email_configured = bool(EMAIL_KEY)
+email_configured = bool(RESEND_API_KEY or EMAIL_KEY)
 
 # ----------------------------------------------------------------------------
 # Guardrail gate (copied as-is from the Resend playbook; call on every send)
@@ -108,21 +111,36 @@ def _assert_safe_email(subject: str, html: str) -> None:
 # ----------------------------------------------------------------------------
 async def send_email(*, to: str, subject: str, html: str, reply_to: str | None = None) -> str | None:
     """Send one transactional email. Returns provider id, or None on failure.
-    Never raises — a payment must never be blocked by an email hiccup."""
+    Never raises — a payment must never be blocked by an email hiccup.
+    Uses the owner's direct Resend account when RESEND_API_KEY is set,
+    otherwise falls back to the Emergent managed email proxy."""
     if not email_configured:
-        logger.warning("Email not configured (EMERGENT_EMAIL_KEY missing); skipping send")
+        logger.warning("Email not configured (no RESEND_API_KEY / EMERGENT_EMAIL_KEY); skipping send")
         return None
     _assert_safe_email(subject, html)  # G2-G3 gate — never skip
-    payload = {"to": [to], "subject": subject, "html": html, "from_name": EMAIL_FROM_NAME}
-    if reply_to or EMAIL_REPLY_TO:
-        payload["contact_email"] = reply_to or EMAIL_REPLY_TO
+    effective_reply_to = reply_to or EMAIL_REPLY_TO
     try:
-        async with httpx.AsyncClient(timeout=30) as client:
-            resp = await client.post(
-                f"{EMAIL_BASE_URL}/api/v1/email/send",
-                headers={"X-Email-Key": EMAIL_KEY},
-                json=payload,
-            )
+        if RESEND_API_KEY:
+            sender = RESEND_FROM if "<" in RESEND_FROM else f"{EMAIL_FROM_NAME} <{RESEND_FROM}>"
+            payload = {"from": sender, "to": [to], "subject": subject, "html": html}
+            if effective_reply_to:
+                payload["reply_to"] = effective_reply_to
+            async with httpx.AsyncClient(timeout=30) as client:
+                resp = await client.post(
+                    RESEND_URL,
+                    headers={"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"},
+                    json=payload,
+                )
+        else:
+            payload = {"to": [to], "subject": subject, "html": html, "from_name": EMAIL_FROM_NAME}
+            if effective_reply_to:
+                payload["contact_email"] = effective_reply_to
+            async with httpx.AsyncClient(timeout=30) as client:
+                resp = await client.post(
+                    f"{EMAIL_BASE_URL}/api/v1/email/send",
+                    headers={"X-Email-Key": EMAIL_KEY},
+                    json=payload,
+                )
         resp.raise_for_status()
         return resp.json().get("id")
     except Exception as e:
