@@ -1,0 +1,33 @@
+{
+  "summary": "Full backend + frontend test of the new /medical-6-combo landing page and its endpoints. All 5 backend pytest cases pass (combo product at ₹297 with 6 files, combo-6 add-ons returns only ct-mri-xray-guide & radiology-guide @₹149, regular /api/add-ons correctly excludes combo6-only, /api/products contains the combo (7+ items), checkout returns 503 'Payments are not configured'). Frontend desktop (1920x1080) and mobile (390x844) both render all 10 target testid sections with zero horizontal overflow. Live total correctly updates: 297 -> 446 (CT) -> 595 (both) -> 297 (untick); hero/sticky/pricing buy buttons all mirror the live total. Buyer-email dialog opens on buy click; after submitting a valid email the backend returns 503 (seen in console). Reviews section correctly hidden (no reviews). Regression /products shows combo card linking to /medical-6-combo; product detail page's 'View Full Details' links to /medical-6-combo; /medical-reference-bundle still loads.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Buy -> dialog -> checkout", "issue": "Backend correctly returns 503 'Payments are not configured' (expected while Razorpay keys unset). Toast text was not captured in body during script wait (likely auto-dismissed quickly), but 503 was observed in browser console. Suggest verifying toast remains visible long enough for users to read, or render an inline error inside the dialog.", "affected_selectors": ["buyer-email-dialog"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_medical_combo6.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Optional: ensure the 'Payments are not configured' error is surfaced as a persistent toast or inline dialog message (currently appears to auto-dismiss quickly).",
+    "Covers for Medicine Reference, CT Scan and Radiology are placeholders pending user upload — expected, not a bug."
+  ],
+  "critical_code_review_comments": [
+    "MedicalCombo6.jsx is large (~390 lines) with inline constant arrays (guides, audience, faq, difference). Consider extracting data constants to a sibling file for maintainability.",
+    "Sample tab testids use pattern 'combo6-tab-{key}' while the task description referenced 'combo6-sample-tab-*' — align naming or document the actual pattern in task notes.",
+    "Reviews section is correctly conditionally rendered; good."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_medical_combo6.py (new)"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "N/A — public storefront",
+  "seed_data_creation": "None — relies on existing seeded products",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend endpoints for the medical-6 combo are stable. Sample tab testids are 'combo6-tab-{key}' (disease/medicine/lab/emergency/ecg/ayurvedic). Reviews section testid 'combo6-reviews' exists but is conditionally rendered only when reviews list is non-empty — currently hidden by design. Payments are intentionally unset; checkout correctly surfaces 503."
+}

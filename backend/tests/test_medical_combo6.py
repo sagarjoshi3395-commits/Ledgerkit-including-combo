@@ -1,0 +1,107 @@
+"""Backend tests for Medical 6-PDF Combo product + add-ons + checkout."""
+import os
+import pytest
+import requests
+
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://ledger-website.preview.emergentagent.com").rstrip("/")
+
+
+@pytest.fixture(scope="module")
+def client():
+    s = requests.Session()
+    s.headers.update({"Content-Type": "application/json"})
+    return s
+
+
+# --- Combo product ---
+def test_combo_product_endpoint(client):
+    r = client.get(f"{BASE_URL}/api/products/medical-6-pdf-combo", timeout=15)
+    assert r.status_code == 200, r.text
+    data = r.json()
+    digital = data.get("editions", {}).get("digital", {})
+    # Sale price ₹297, regular/MRP ₹1699
+    assert digital.get("price") == 297, f"Expected sale 297, got {digital.get('price')}"
+    reg = digital.get("regular_price") or data.get("regular_price")
+    assert reg == 1699, f"Expected regular_price 1699, got {reg}"
+    # 6 download files
+    files = data.get("download_files") or digital.get("download_files") or []
+    assert len(files) == 6, f"Expected 6 download files, got {len(files)}: {files}"
+
+
+# --- Combo-only add-ons ---
+def test_combo6_addons(client):
+    r = client.get(f"{BASE_URL}/api/combo-6/add-ons", timeout=15)
+    assert r.status_code == 200
+    data = r.json()
+    slugs = sorted([p.get("slug") for p in data])
+    assert slugs == ["ct-mri-xray-guide", "radiology-guide"], f"Got slugs: {slugs}"
+    for p in data:
+        assert p["editions"]["digital"]["price"] == 149
+    by_slug = {p["slug"]: p for p in data}
+    assert by_slug["ct-mri-xray-guide"].get("cover_image") == "/samples/combo-6/cover-ct-scan.png"
+    assert by_slug["radiology-guide"].get("cover_image") == "/samples/combo-6/cover-radiology.png"
+
+
+# --- Combo gallery contains new real covers ---
+def test_combo_gallery_includes_new_covers(client):
+    r = client.get(f"{BASE_URL}/api/products/medical-6-pdf-combo", timeout=15)
+    assert r.status_code == 200
+    gallery = r.json().get("gallery") or []
+    assert "/samples/combo-6/cover-medicine.png" in gallery, gallery
+    assert "/samples/combo-6/cover-lab-report.png" in gallery, gallery
+
+
+# --- Public cover assets all return 200 ---
+@pytest.mark.parametrize("path", [
+    "/samples/combo-6/cover-disease.png",
+    "/samples/combo-6/cover-medicine.png",
+    "/samples/combo-6/cover-lab-report.png",
+    "/samples/combo-6/cover-emergency.png",
+    "/samples/combo-6/cover-ecg.png",
+    "/samples/combo-6/cover-ayurvedic.png",
+    "/samples/combo-6/cover-ct-scan.png",
+    "/samples/combo-6/cover-radiology.png",
+    "/samples/combo-6/bundle-6-books.png",
+])
+def test_cover_asset_reachable(client, path):
+    r = client.get(f"{BASE_URL}{path}", timeout=15)
+    assert r.status_code == 200, f"{path} => {r.status_code}"
+    assert int(r.headers.get("content-length", "1")) > 0
+
+
+# --- Regular add-ons must exclude combo6-only ---
+def test_regular_addons_excludes_combo6(client):
+    r = client.get(f"{BASE_URL}/api/add-ons", timeout=15)
+    assert r.status_code == 200
+    data = r.json()
+    slugs = [p.get("slug") for p in data]
+    assert "ct-mri-xray-guide" not in slugs, f"Regression: combo6-only slug leaked: {slugs}"
+    assert "radiology-guide" not in slugs, f"Regression: combo6-only slug leaked: {slugs}"
+
+
+# --- Store list contains combo ---
+def test_products_list_contains_combo(client):
+    r = client.get(f"{BASE_URL}/api/products", timeout=15)
+    assert r.status_code == 200
+    data = r.json()
+    slugs = [p.get("slug") for p in data]
+    assert "medical-6-pdf-combo" in slugs, f"Combo missing from store list: {slugs}"
+    assert len(data) >= 7, f"Expected >=7 products, got {len(data)}"
+
+
+# --- Checkout: live Razorpay order ---
+def test_checkout_creates_live_razorpay_order(client):
+    payload = {
+        "items": [
+            {"product_slug": "medical-6-pdf-combo", "edition": "digital", "quantity": 1},
+        ],
+        "customer_email": "test@example.com",
+        "customer_name": "Test",
+    }
+    r = client.post(f"{BASE_URL}/api/checkout/create-order", json=payload, timeout=20)
+    assert r.status_code == 200, f"Expected 200, got {r.status_code}: {r.text}"
+    data = r.json()
+    assert data.get("razorpay_order_id"), f"Missing order id: {data}"
+    key_id = data.get("key_id") or data.get("razorpay_key_id") or ""
+    assert key_id.startswith("rzp_live_"), f"Expected live key, got {key_id}"
+    assert data.get("amount") == 29700, f"Expected amount 29700, got {data.get('amount')}"
