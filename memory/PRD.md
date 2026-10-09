@@ -21,6 +21,7 @@
 - Razorpay LIVE keys configured (rzp_live_…) — verified: live order created via API (`order_TlQJ4s5vS2tnYV`) and Razorpay popup opens in UI with LedgerKit brand, ₹199, UPI/Cards
 - Managed delivery email configured (EMERGENT_EMAIL_KEY, EMAIL_FROM_NAME=LedgerKit)
 - Meta Pixel 3470309736541129 connected (REACT_APP_META_PIXEL_ID) — verified firing: fbevents.js loaded, signals/config ping sent, PageView tracked; Purchase event fires on order-success page
+- BUG FIX (2026-10-08, iteration_6 verified): Razorpay popup was unclickable (Radix dialog left pointer-events:none on body). Fixed — dialog closes before popup opens + pointer-events force-cleared in razorpay.js. Mobile input now typable on product & combo pages. NOTE: needs redeploy to reach the live deployment.
 - User's own Resend API key NOT used (their domain isn't verified in Resend, so it can't email arbitrary buyers; managed proxy needs no Hostinger/nameserver changes)
 
 ## VERIFIED (2026-10-08, testing_agent iteration_5 — 3/3 pass)
