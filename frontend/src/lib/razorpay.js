@@ -87,6 +87,10 @@ export async function startRazorpayCheckout({ items, email, prefill = {}, onSucc
   rzp.on("payment.failed", (resp) => {
     onError?.(resp?.error?.description || "Payment failed. Please try again.");
   });
+  // Radix dialogs set pointer-events:none on <body> while open; clear any leftover
+  // so the Razorpay iframe stays clickable even if a dialog close is mid-animation.
+  document.body.style.pointerEvents = "";
+  document.body.style.removeProperty("pointer-events");
   rzp.open();
   return true;
 }

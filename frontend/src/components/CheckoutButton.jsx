@@ -25,6 +25,7 @@ export function CheckoutButton({ product, edition = "digital", className = "", c
 
   async function handleEmailSubmit(email) {
     setLoading(true);
+    setEmailOpen(false);
     trackEvent("InitiateCheckout", {
       content_name: product?.slug,
       content_category: edition,
@@ -42,7 +43,6 @@ export function CheckoutButton({ product, edition = "digital", className = "", c
       },
     });
     setLoading(false);
-    setEmailOpen(false);
   }
 
   return (
