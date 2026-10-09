@@ -171,18 +171,20 @@ export default function MedicalCombo6() {
                 </span>
               ))}
             </div>
-            <div className="mt-7 flex items-end gap-3">
-              <span className="font-display text-4xl font-extrabold text-ink" data-testid="combo6-hero-price">{formatINR(comboPrice)}</span>
-              <span className="pb-1 text-lg text-slate-400 line-through">₹1,699</span>
-              <span className="mb-1 rounded-full bg-emerald-100 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-emerald-700">Save 82%</span>
-            </div>
-            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
               <button
                 onClick={openBuy}
                 data-testid="combo6-hero-buy-button"
                 className="c6-glow inline-flex items-center justify-center gap-2 rounded-lg bg-brand-400 px-7 py-4 font-display text-base font-extrabold text-ink-surface transition-colors duration-200 hover:bg-[#ffe14d]"
               >
                 Download all 6 — {formatINR(total)} <ArrowRight className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => samplesRef.current?.scrollIntoView({ behavior: "smooth" })}
+                data-testid="combo6-hero-preview-button"
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-600 transition-colors duration-200 hover:border-brand-600 hover:text-brand-700"
+              >
+                <BookOpen className="h-3.5 w-3.5" /> Preview
               </button>
               {offerClock && (
                 <span className="inline-flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-slate-500" data-testid="combo6-hero-timer">
