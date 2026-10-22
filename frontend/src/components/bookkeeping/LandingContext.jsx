@@ -1,12 +1,16 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { api } from "../../lib/api";
 import { trackEvent, getStoredUtms } from "../../lib/analytics";
 import { startRazorpayCheckout } from "../../lib/razorpay";
 import BuyerEmailDialog from "../BuyerEmailDialog";
 
+export const BBS_TIMER_KEY = "lk_bbs_offer_deadline";
+export const addOnPrice = (a) => a?.editions?.digital?.price ?? a?.sale_price ?? 0;
+
 const BbsBuyCtx = createContext({
   product: null, openBuy: () => {}, price: 290, regularPrice: 999, highlight: false,
+  addOns: [], selected: [], toggleAddOn: () => {}, total: 290,
 });
 export const useBbsBuy = () => useContext(BbsBuyCtx);
 
@@ -19,8 +23,17 @@ const FALLBACK = {
   regular_price: 999,
 };
 
+const FALLBACK_ADDON = {
+  slug: "productivity-execution-bundle",
+  title: "Productivity & Execution Bundle",
+  cover_image: "/assets/bookkeeping/productivity-bundle.webp",
+  editions: { digital: { price: 149 } },
+};
+
 export function BbsBuyProvider({ children }) {
   const [product, setProduct] = useState(FALLBACK);
+  const [addOns, setAddOns] = useState([FALLBACK_ADDON]);
+  const [selected, setSelected] = useState([]);
   const [loading, setLoading] = useState(false);
   const [emailOpen, setEmailOpen] = useState(false);
   const [pricingSeen, setPricingSeen] = useState(false);
@@ -36,7 +49,19 @@ export function BbsBuyProvider({ children }) {
         regular_price: edition.regular_price ?? data.regular_price ?? p.regular_price,
       }));
     }).catch(() => {});
+    api.get("/bookkeeping/add-ons").then(({ data }) => {
+      if (Array.isArray(data) && data.length) setAddOns(data);
+    }).catch(() => {});
   }, []);
+
+  const toggleAddOn = useCallback((slug) => {
+    setSelected((cur) => (cur.includes(slug) ? cur.filter((s) => s !== slug) : [...cur, slug]));
+  }, []);
+
+  const total = useMemo(
+    () => product.price + addOns.filter((a) => selected.includes(a.slug)).reduce((s, a) => s + addOnPrice(a), 0),
+    [product.price, addOns, selected],
+  );
 
   const scrollToPricing = () => {
     document.getElementById("bbs-pricing")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -44,9 +69,9 @@ export function BbsBuyProvider({ children }) {
     window.setTimeout(() => setHighlight(false), 2200);
   };
 
-  // Page CTAs: first click shows the pricing section; the next click opens
-  // checkout. The pricing button passes `true` and always goes straight there.
-  const openBuy = (straightToCheckout) => {
+  // Hero CTA: first click shows pricing (with the add-on); every other CTA —
+  // and the second hero click — opens checkout straight away.
+  const openBuy = useCallback((straightToCheckout) => {
     if (loading) return;
     if (straightToCheckout === true || pricingSeen) {
       setEmailOpen(true);
@@ -54,34 +79,34 @@ export function BbsBuyProvider({ children }) {
     }
     setPricingSeen(true);
     scrollToPricing();
-  };
+  }, [loading, pricingSeen]);
 
   async function handleEmailSubmit(email) {
     setLoading(true);
     trackEvent("InitiateCheckout", {
       content_name: product.slug,
-      value: product.price,
+      content_ids: [product.slug, ...selected],
+      num_items: 1 + selected.length,
+      value: total,
       currency: product.currency || "INR",
       ...getStoredUtms(),
     });
-    await startRazorpayCheckout({
-      items: [{ product_slug: product.slug }],
+    const opened = await startRazorpayCheckout({
+      items: [{ product_slug: product.slug, edition: "digital" }, ...selected.map((s) => ({ product_slug: s, edition: "digital" }))],
       email,
-      onError: (msg) => toast.error("Couldn't start checkout", { description: msg }),
-      onDismiss: () => {
+      onError: (msg) => {
         setLoading(false);
-        setEmailOpen(false);
+        toast.error("Couldn't start checkout", { description: msg, duration: 8000 });
       },
-      onSuccess: ({ order_id }) => {
-        window.location.href = `/order-success?order_id=${order_id}`;
-      },
+      onDismiss: () => setLoading(false),
     });
-    setLoading(false);
-    setEmailOpen(false);
+    // Close our dialog once Razorpay is on screen so the two never overlap.
+    if (opened) setEmailOpen(false);
+    else setLoading(false);
   }
 
   return (
-    <BbsBuyCtx.Provider value={{ product, openBuy, price: product.price, regularPrice: product.regular_price, highlight }}>
+    <BbsBuyCtx.Provider value={{ product, openBuy, price: product.price, regularPrice: product.regular_price, highlight, addOns, selected, toggleAddOn, total }}>
       {children}
       <BuyerEmailDialog
         open={emailOpen}
@@ -89,7 +114,11 @@ export function BbsBuyProvider({ children }) {
         onSubmit={handleEmailSubmit}
         busy={loading}
         productTitle={product.short_title || product.title}
-        total={product.price}
+        total={total}
+        addOns={addOns}
+        selectedAddOns={selected}
+        onToggleAddOn={toggleAddOn}
+        addOnPrice={addOnPrice}
       />
     </BbsBuyCtx.Provider>
   );

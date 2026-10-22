@@ -5,6 +5,22 @@ const RAZORPAY_SCRIPT = "https://checkout.razorpay.com/v1/checkout.js";
 
 let scriptPromise = null;
 
+const OVERLAY_ID = "rzp-confirming-overlay";
+
+function showConfirmingOverlay() {
+  if (document.getElementById(OVERLAY_ID)) return;
+  const el = document.createElement("div");
+  el.id = OVERLAY_ID;
+  el.setAttribute("data-testid", "payment-confirming-overlay");
+  el.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:rgba(11,20,55,.78);display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif";
+  el.innerHTML = '<div style="background:#fff;border-radius:16px;padding:28px 32px;text-align:center;max-width:320px;box-shadow:0 20px 60px rgba(0,0,0,.3)"><div style="width:40px;height:40px;margin:0 auto 14px;border:4px solid #e2e8f0;border-top-color:#2E1AC8;border-radius:50%;animation:rzpspin .8s linear infinite"></div><div style="font-weight:700;color:#0B1437;font-size:17px">Payment successful</div><div style="color:#64748b;font-size:14px;margin-top:6px">Opening your downloads…</div></div><style>@keyframes rzpspin{to{transform:rotate(360deg)}}</style>';
+  document.body.appendChild(el);
+}
+
+function hideConfirmingOverlay() {
+  document.getElementById(OVERLAY_ID)?.remove();
+}
+
 /** Lazy-load the Razorpay Checkout script once. */
 export function loadRazorpayScript() {
   if (window.Razorpay) return Promise.resolve(true);
@@ -65,17 +81,33 @@ export async function startRazorpayCheckout({ items, email, prefill = {}, onSucc
     prefill: { email: email || prefill.email || "", ...prefill },
     theme: { color: "#2E1AC8" },
     handler: async (response) => {
-      try {
-        await api.post("/checkout/verify", {
-          order_id: order.order_id,
-          razorpay_order_id: response.razorpay_order_id,
-          razorpay_payment_id: response.razorpay_payment_id,
-          razorpay_signature: response.razorpay_signature,
-        });
-        if (onSuccess) onSuccess({ order_id: order.order_id });
-        else window.location.href = `/order-success?order_id=${order.order_id}`;
-      } catch (err) {
-        onError?.("Payment received but verification failed. Please contact support with your payment ID.");
+      showConfirmingOverlay();
+      const body = {
+        order_id: order.order_id,
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_signature: response.razorpay_signature,
+      };
+      // Retry a few times so a brief network blip never leaves the buyer stuck.
+      let verified = false;
+      for (let attempt = 0; attempt < 3 && !verified; attempt += 1) {
+        try {
+          await api.post("/checkout/verify", body, { timeout: 15000 });
+          verified = true;
+        } catch (err) {
+          const status = err?.response?.status;
+          if (status === 400 || status === 404) break;
+          await new Promise((r) => setTimeout(r, 1200 * (attempt + 1)));
+        }
+      }
+      if (verified) {
+        if (onSuccess) {
+          hideConfirmingOverlay();
+          onSuccess({ order_id: order.order_id });
+        } else window.location.href = `/order-success?order_id=${order.order_id}`;
+      } else {
+        hideConfirmingOverlay();
+        onError?.(`Payment received but verification failed. Please contact support with payment ID ${response.razorpay_payment_id}.`);
       }
     },
     modal: {

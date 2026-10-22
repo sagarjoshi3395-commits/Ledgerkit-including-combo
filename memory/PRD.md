@@ -207,3 +207,9 @@ See /app/memory/test_credentials.md.
 - SITE_BASE in seed_data.py now read from env (SITE_BASE) instead of hardcoded domain — set to production domain before going live
 - Services running; 7 store products + add-ons seeded; home page verified
 - PENDING: RAZORPAY_KEY_ID/RAZORPAY_KEY_SECRET and RESEND_API_KEY (or EMERGENT_EMAIL_KEY) not set → checkout shows "Payments are not configured", delivery emails skipped
+
+## Update (2026-10-22) — Pixels + payment reliability
+- Meta Pixels now 4 IDs site-wide (REACT_APP_META_PIXEL_ID): 940189282348093, 4445400379031726, 3470309736541129, 1605079064338578 → PageView (initial in index.html, SPA navigations in App.js, no duplicate), InitiateCheckout (all buy flows incl. /medical-6-combo now), Purchase (order-success, de-duped per order via localStorage)
+- /checkout/verify: email delivery moved to background task (instant response), Razorpay calls via asyncio.to_thread (no event-loop blocking), void@razorpay.com email ignored
+- razorpay.js: "Payment successful — opening your downloads" overlay + 3x verify retry
+- Awaiting owner keys: RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET, RESEND_API_KEY, RESEND_FROM

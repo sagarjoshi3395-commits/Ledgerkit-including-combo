@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Mail, ArrowRight, Loader2, ShieldCheck, Check, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "./ui/dialog";
 
@@ -32,6 +32,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export default function BuyerEmailDialog({ open, onOpenChange, onSubmit, busy = false, productTitle = "your guide", total = null, addOns = [], selectedAddOns = [], onToggleAddOn, addOnPrice }) {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const inputRef = useRef(null);
   const priceOf = addOnPrice || ((a) => a?.editions?.digital?.price ?? a?.sale_price ?? 0);
 
   useEffect(() => {
@@ -54,7 +55,18 @@ export default function BuyerEmailDialog({ open, onOpenChange, onSubmit, busy = 
 
   return (
     <Dialog open={open} onOpenChange={(v) => !busy && onOpenChange(v)}>
-      <DialogContent className="max-h-[92vh] w-[calc(100vw-1.5rem)] max-w-sm overflow-y-auto p-5 sm:p-6" data-testid="buyer-email-dialog">
+      <DialogContent
+        className="max-h-[calc(100dvh-1.5rem)] w-[calc(100vw-1.5rem)] max-w-sm overflow-y-auto overscroll-contain rounded-2xl p-5 sm:p-6 max-sm:!top-3 max-sm:!translate-y-0 max-sm:!animate-none"
+        style={{ WebkitOverflowScrolling: "touch" }}
+        onOpenAutoFocus={(e) => {
+          // On phones, don't pop the keyboard during the open animation (avoids the
+          // dialog jumping on iOS/Android). Desktop gets the input focused straight away.
+          e.preventDefault();
+          const coarse = window.matchMedia?.("(pointer: coarse)").matches;
+          if (!coarse) inputRef.current?.focus({ preventScroll: true });
+        }}
+        data-testid="buyer-email-dialog"
+      >
         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-100 sm:h-11 sm:w-11">
           <Mail className="h-5 w-5 text-brand-700" />
         </span>
@@ -70,9 +82,14 @@ export default function BuyerEmailDialog({ open, onOpenChange, onSubmit, busy = 
           </label>
           <input
             id="buyer-email"
+            ref={inputRef}
             type="email"
+            inputMode="email"
             autoComplete="email"
-            autoFocus
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            enterKeyHint="go"
             required
             value={email}
             onChange={(e) => { setEmail(e.target.value); setError(""); }}

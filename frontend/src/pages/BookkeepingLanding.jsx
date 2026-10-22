@@ -1,12 +1,14 @@
 import Seo from "../components/Seo";
 import { BbsBuyProvider } from "../components/bookkeeping/LandingContext";
 import {
+  UrgencyBar,
   AnchorStrip,
   Marquee,
   Hero,
-  DashboardFlow,
-  HowItWorks,
+  Preview,
   Problem,
+  Compare,
+  HowItWorks,
   Pricing,
   Faq,
   FinalCta,
@@ -24,13 +26,15 @@ export default function BookkeepingLanding() {
         image="/assets/bookkeeping/monthly.webp"
       />
       <BbsBuyProvider>
-        <main>
+        <main className="pb-20">
+          <UrgencyBar />
           <AnchorStrip />
           <Hero />
           <Marquee />
-          <DashboardFlow />
-          <HowItWorks />
+          <Preview />
           <Problem />
+          <Compare />
+          <HowItWorks />
           <Pricing />
           <Faq />
           <FinalCta />

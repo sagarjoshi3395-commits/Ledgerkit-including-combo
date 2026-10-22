@@ -869,3 +869,28 @@ COMBO6_ADD_ON_PRODUCTS = [
         "A radiology quick-reference for students covering imaging modalities, basic positioning and how to approach common studies. Educational reference only. PDF file pending upload.",
     ),
 ]
+
+
+# ---- Add-on sold ONLY on the Business Bookkeeping landing page ----
+def _bookkeeping_add_on():
+    doc = _add_on(
+        "productivity-execution-bundle", "Productivity & Execution Bundle", 149,
+        "Lead tracker, Office & Power BI templates, habit tracker, 3,200+ AI prompts, 1,000+ email templates and 1,600+ business & reel ideas.",
+        "A done-for-you execution kit for small business owners: Lead Tracker Template (Sheets & Excel), Word, PowerPoint & Power BI templates, Bookkeeping & Habit Tracker Sheet, 3,200+ AI & ChatGPT prompts for business, 1,000+ ready-to-use email templates and 1,600+ business & reel ideas. Files pending upload.",
+    )
+    doc["bookkeeping_only"] = True
+    doc["category"] = "templates"
+    doc["product_type"] = "Add-on Bundle"
+    doc["format"] = "Digital (Sheets, Excel, Office, Power BI, PDF)"
+    doc["cover_image"] = "/assets/bookkeeping/productivity-bundle.webp"
+    doc["whats_included"] = [
+        "Lead Tracker Template (Sheets & Excel)",
+        "Word, PowerPoint & Power BI Templates + Bookkeeping & Habit Tracker Sheet",
+        "3,200+ AI & ChatGPT Prompts for Business",
+        "1,000+ Ready-to-Use Email Templates",
+        "1,600+ Business & Reel Ideas",
+    ]
+    return doc
+
+
+BOOKKEEPING_ADD_ON_PRODUCTS = [_bookkeeping_add_on()]

@@ -42,6 +42,11 @@ export default function OrderSuccess() {
   useEffect(() => {
     if (paid && order && !purchaseFired.current) {
       purchaseFired.current = true;
+      const key = `purchase_tracked_${order.order_id}`;
+      try {
+        if (localStorage.getItem(key)) return;
+        localStorage.setItem(key, "1");
+      } catch (e) { /* ignore */ }
       trackEvent("Purchase", {
         content_name: order.product_slug,
         content_category: order.edition,

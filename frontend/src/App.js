@@ -1,12 +1,12 @@
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect, useRef, lazy, Suspense } from "react";
 import "@/App.css";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import Home from "@/pages/Home";
 import { trackPageView, getStoredUtms } from "@/lib/analytics";
 
+const Home = lazy(() => import("@/pages/Home"));
 const Products = lazy(() => import("@/pages/Products"));
 const ProductDetail = lazy(() => import("@/pages/ProductDetail"));
 const MetaAdsDecode = lazy(() => import("@/pages/MetaAdsDecode"));
@@ -31,6 +31,7 @@ function PageFallback() {
 
 function ScrollAndTrack() {
   const location = useLocation();
+  const lastPath = useRef(null);
   useEffect(() => {
     getStoredUtms();
     if (!location.hash) window.scrollTo(0, 0);
@@ -38,7 +39,9 @@ function ScrollAndTrack() {
       const el = document.getElementById(location.hash.slice(1));
       if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 100);
     }
-    trackPageView(location.pathname);
+    // index.html already fires the initial PageView; only track SPA navigations here.
+    if (lastPath.current !== null && lastPath.current !== location.pathname) trackPageView(location.pathname);
+    lastPath.current = location.pathname;
   }, [location.pathname, location.hash]);
   return null;
 }

@@ -4,6 +4,7 @@ import { api, formatINR } from "@/lib/api";
 import { useOfferTimer } from "@/lib/offerTimer";
 import { toast } from "sonner";
 import { startRazorpayCheckout } from "@/lib/razorpay";
+import { trackEvent, getStoredUtms } from "@/lib/analytics";
 import BuyerEmailDialog from "@/components/BuyerEmailDialog";
 import FaqAccordion from "@/components/FaqAccordion";
 import { SectionHeading } from "@/components/SectionHeading";
@@ -108,6 +109,14 @@ export default function MedicalCombo6() {
 
   const pay = (email) => {
     setBusy(true);
+    trackEvent("InitiateCheckout", {
+      content_name: COMBO_SLUG,
+      content_ids: [COMBO_SLUG, ...selected],
+      num_items: 1 + selected.length,
+      value: total,
+      currency: "INR",
+      ...getStoredUtms(),
+    });
     startRazorpayCheckout({
       items: [{ product_slug: COMBO_SLUG, edition: "digital" }, ...selected.map((s) => ({ product_slug: s, edition: "digital" }))],
       email,

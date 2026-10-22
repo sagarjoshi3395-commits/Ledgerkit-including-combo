@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
+import asyncio
 import logging
 import uuid
 import razorpay
@@ -195,7 +196,7 @@ async def get_add_ons_combo():
 async def list_add_ons():
     """Add-on guides — purchasable at checkout, hidden from store listings.
     combo6_only add-ons are excluded: they are sold only on the 6-PDF combo page."""
-    docs = await db.products.find({"status": "published", "is_add_on": True, "is_combo": {"$ne": True}, "combo6_only": {"$ne": True}}).sort("editions.digital.price", 1).to_list(50)
+    docs = await db.products.find({"status": "published", "is_add_on": True, "is_combo": {"$ne": True}, "combo6_only": {"$ne": True}, "bookkeeping_only": {"$ne": True}}).sort("editions.digital.price", 1).to_list(50)
     return [serialize_doc(d) for d in docs]
 
 
@@ -203,6 +204,13 @@ async def list_add_ons():
 async def list_combo6_add_ons():
     """Add-ons sold only alongside the Ledgerkit 6 PDF Medical Combo."""
     docs = await db.products.find({"status": "published", "combo6_only": True}).sort("editions.digital.price", 1).to_list(10)
+    return [serialize_doc(d) for d in docs]
+
+
+@api_router.get("/bookkeeping/add-ons")
+async def list_bookkeeping_add_ons():
+    """Add-ons sold only alongside the Business Bookkeeping Sheet System."""
+    docs = await db.products.find({"status": "published", "bookkeeping_only": True}).sort("editions.digital.price", 1).to_list(10)
     return [serialize_doc(d) for d in docs]
 
 
@@ -246,7 +254,7 @@ async def create_razorpay_order(payload: RazorpayCreateIn):
     """Create a Razorpay order for one or more items (guide / add-ons / combo / bundle).
     Amount is always computed server-side from DB prices — never trusted from the client."""
     if razorpay_client is None:
-        raise HTTPException(status_code=503, detail="Payments are not configured. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in backend/.env.")
+        raise HTTPException(status_code=503, detail="Payments are temporarily unavailable. Please try again shortly.")
     if not payload.items:
         raise HTTPException(status_code=400, detail="No items to check out")
 
@@ -289,7 +297,7 @@ async def create_razorpay_order(payload: RazorpayCreateIn):
     order_doc["items"] = line_items
 
     try:
-        rzp_order = razorpay_client.order.create({
+        rzp_order = await asyncio.to_thread(razorpay_client.order.create, {
             "amount": amount_paise,
             "currency": currency,
             "receipt": order.order_id,
@@ -381,6 +389,20 @@ async def _deliver_products(order_doc: dict, buyer_email: str) -> bool:
     return bool(email_id)
 
 
+_BACKGROUND_TASKS: set = set()
+
+
+async def _deliver_in_background(order_doc: dict, buyer_email: str) -> None:
+    try:
+        delivered = await _deliver_products(order_doc, buyer_email)
+        await db.orders.update_one(
+            {"order_id": order_doc.get("order_id")},
+            {"$set": {"delivery_status": "sent" if delivered else "pending", "delivered_to": buyer_email if delivered else None}},
+        )
+    except Exception as exc:  # never crash the server on email problems
+        logger.error("Background delivery failed for %s: %s", order_doc.get("order_id"), exc)
+
+
 @api_router.post("/checkout/verify")
 async def verify_razorpay_payment(payload: RazorpayVerifyIn):
     """Verify the Razorpay payment signature, mark the order paid, and email delivery."""
@@ -402,8 +424,12 @@ async def verify_razorpay_payment(payload: RazorpayVerifyIn):
     # Resolve the buyer's email authoritatively from the Razorpay payment record.
     buyer_email = order.get("email")
     try:
-        payment = razorpay_client.payment.fetch(payload.razorpay_payment_id)
-        buyer_email = payment.get("email") or buyer_email
+        payment = await asyncio.wait_for(
+            asyncio.to_thread(razorpay_client.payment.fetch, payload.razorpay_payment_id), timeout=6
+        )
+        rzp_email = (payment.get("email") or "").strip()
+        if rzp_email and rzp_email.lower() != "void@razorpay.com":
+            buyer_email = rzp_email
     except Exception as exc:
         logger.warning("Could not fetch Razorpay payment %s: %s", payload.razorpay_payment_id, exc)
 
@@ -417,17 +443,13 @@ async def verify_razorpay_payment(payload: RazorpayVerifyIn):
         }},
     )
 
-    # Deliver the product by email (never blocks the payment result).
-    delivered = False
-    if buyer_email:
-        order["items"] = order.get("items")
-        delivered = await _deliver_products(order, buyer_email)
-        await db.orders.update_one(
-            {"order_id": payload.order_id},
-            {"$set": {"delivery_status": "sent" if delivered else "pending", "delivered_to": buyer_email if delivered else None}},
-        )
+    # Deliver the product by email in the background so the buyer is never kept waiting.
+    if buyer_email and order.get("delivery_status") != "sent":
+        task = asyncio.create_task(_deliver_in_background(order, buyer_email))
+        _BACKGROUND_TASKS.add(task)
+        task.add_done_callback(_BACKGROUND_TASKS.discard)
 
-    return {"ok": True, "order_id": payload.order_id, "status": "paid", "delivered": delivered}
+    return {"ok": True, "order_id": payload.order_id, "status": "paid", "delivery": "queued" if buyer_email else "no_email"}
 
 
 @api_router.get("/orders/recent-summary")
@@ -507,8 +529,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 @app.on_event("startup")
 async def seed_database():
     await db.products.create_index("slug", unique=True)
-    from seed_data import ADD_ON_PRODUCTS, BOOKKEEPING_PRODUCT, COMBO_PRODUCT, MEDICAL_6_COMBO_PRODUCT, COMBO6_ADD_ON_PRODUCTS
-    for product_doc in [META_ADS_DECODE_PRODUCT, AI_IDEAS_PRODUCT, PROMPT_GUIDE_PRODUCT, BUNDLE_PRODUCT, MEDICAL_BUNDLE_PRODUCT, BOOKKEEPING_PRODUCT, MEDICAL_6_COMBO_PRODUCT, *ADD_ON_PRODUCTS, *COMBO6_ADD_ON_PRODUCTS, COMBO_PRODUCT]:
+    from seed_data import ADD_ON_PRODUCTS, BOOKKEEPING_PRODUCT, COMBO_PRODUCT, MEDICAL_6_COMBO_PRODUCT, COMBO6_ADD_ON_PRODUCTS, BOOKKEEPING_ADD_ON_PRODUCTS
+    for product_doc in [META_ADS_DECODE_PRODUCT, AI_IDEAS_PRODUCT, PROMPT_GUIDE_PRODUCT, BUNDLE_PRODUCT, MEDICAL_BUNDLE_PRODUCT, BOOKKEEPING_PRODUCT, MEDICAL_6_COMBO_PRODUCT, *ADD_ON_PRODUCTS, *COMBO6_ADD_ON_PRODUCTS, *BOOKKEEPING_ADD_ON_PRODUCTS, COMBO_PRODUCT]:
         doc = dict(product_doc)
         doc["created_at"] = datetime.now(timezone.utc).isoformat()
         await db.products.update_one({"slug": doc["slug"]}, {"$set": doc}, upsert=True)
