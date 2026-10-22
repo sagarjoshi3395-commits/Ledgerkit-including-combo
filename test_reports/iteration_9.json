@@ -1,0 +1,26 @@
+{
+  "summary": "Verified Razorpay LIVE checkout start (no payments made). Backend 4/4: create-order with BBS + productivity-execution-bundle returns 200, amount 43900, INR, key_id rzp_live_*, and no secret in the response; medical-6-pdf-combo returns 200 with amount 29700 (the product is priced at Rs 297 in seed/DB/UI, so the 19900 expected in the request was wrong); add-on alone returns 400 'only available with...'; a duplicate sheet is deduped to amount 29000. Frontend: /business-bookkeeping-system on mobile 390 and desktop 1920: bbs-sticky-buy -> email -> continue opens iframe.razorpay-checkout-frame (amount 290/439 with add-on, email prefilled). Our dialog closes, there is no error toast, and fbq InitiateCheckout fires with the correct value and content_ids. Closing Razorpay ('Yes, exit') removes the iframe; the buy button reopens the dialog with Continue enabled, and a second Razorpay open works. Found and FIXED a CRITICAL bug on /medical-6-combo: the Razorpay modal opened, but our BuyerEmailDialog (Radix) stayed open underneath. The dialog sets body pointer-events:none, which .razorpay-container and the iframe inherit, and its focus trap steals focus, so buyers could not click or type in Razorpay (mobile number input unreachable). After the fix the dialog closes, body pointer-events is auto, and typing into the Razorpay contact field works on both pages.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "MedicalCombo6 pay()", "issue": "FIXED: BuyerEmailDialog stayed open while Razorpay was open -> Razorpay iframe unclickable and not typeable (checkout blocked)", "selector": "iframe.razorpay-checkout-frame / [data-testid=buyer-email-dialog]", "priority": "CRITICAL"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/test_razorpay_live_checkout.py", "/app/test_reports/pytest/pytest_results_iter9.xml"],
+  "action_items": [
+    "Consider resetting busy/loading on the BBS page after Razorpay opens. It currently stays true until ondismiss, which is fine, but rely on it consistently.",
+    "Note: medical combo price is Rs 297 (29700 paise), not 199. Update any docs or expectations that say 19900."
+  ],
+  "critical_code_review_comments": [
+    "MedicalCombo6.pay did not await startRazorpayCheckout or close the dialog. Any Radix modal left open beneath Razorpay breaks the checkout iframe. Keep the 'if (opened) close dialog' pattern in every caller (the other callers already do this).",
+    "Console shows many ERR_CONNECTION_REFUSED messages from inside Razorpay checkout (its own fingerprinting probes). They are harmless and not from app code."
+  ],
+  "updated_files": ["/app/frontend/src/pages/MedicalCombo6.jsx", "/app/backend/tests/test_razorpay_live_checkout.py"],
+  "success_rate": {"backend": "100% (4/4)", "frontend": "100% after fix (medical page was failing before fix)"},
+  "seed_data_creation": "None. Around 10 unpaid live Razorpay orders were created by the tests (harmless).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "LIVE keys: never pay. Razorpay iframe testids: contactNumber input, checkout-close button. On desktop the contact-details popup X (~1428,460 at 1920x1080) triggers the 'Are you sure you want to exit?' prompt, then click button 'Yes, exit'. Use page.frame(url contains api.razorpay.com). Set sessionStorage lk_bbs_exit_shown=1 to suppress the exit offer."
+}

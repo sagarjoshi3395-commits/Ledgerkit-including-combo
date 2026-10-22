@@ -225,3 +225,8 @@ See /app/memory/test_credentials.md.
 ## Update — Exit offer (bookkeeping)
 - components/bookkeeping/ExitOffer.jsx: once per session (sessionStorage lk_bbs_exit_shown); desktop mouse-out top + Back-button trap (one history entry, idempotent, reuses bbsTrap entry on reload/back). Offers sheet+add-on ₹439 or sheet ₹290 at normal prices; Back while checkout open just closes checkout. Pixel custom events ExitOfferShown / ExitOfferAccepted
 - Tested: iteration_6–8 all pass
+
+## Update — Live Razorpay connected
+- Backend reads PAYMENT_LIVE_KEY_ID / PAYMENT_LIVE_KEY_SECRET (live-only secrets; fallback RAZORPAY_KEY_*) — live order creation verified (iteration_9)
+- Fixed: /medical-6-combo email dialog stayed open over Razorpay (blocked typing) — now closes once Razorpay opens
+- Still pending: Resend email key, add-on files upload, publish to ledgerkit.in

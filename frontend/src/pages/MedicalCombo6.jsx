@@ -107,7 +107,7 @@ export default function MedicalCombo6() {
 
   const activeGuideData = GUIDES.find((g) => g.key === activeGuide) || GUIDES[0];
 
-  const pay = (email) => {
+  const pay = async (email) => {
     setBusy(true);
     trackEvent("InitiateCheckout", {
       content_name: COMBO_SLUG,
@@ -117,7 +117,7 @@ export default function MedicalCombo6() {
       currency: "INR",
       ...getStoredUtms(),
     });
-    startRazorpayCheckout({
+    const opened = await startRazorpayCheckout({
       items: [{ product_slug: COMBO_SLUG, edition: "digital" }, ...selected.map((s) => ({ product_slug: s, edition: "digital" }))],
       email,
       onError: (msg) => {
@@ -126,6 +126,12 @@ export default function MedicalCombo6() {
       },
       onDismiss: () => setBusy(false),
     });
+    // Close our Radix dialog once Razorpay is on screen: an open dialog sets
+    // body pointer-events:none + focus trap, which makes the Razorpay iframe unusable.
+    if (opened) {
+      setBusy(false);
+      setDialogOpen(false);
+    } else setBusy(false);
   };
 
   return (
