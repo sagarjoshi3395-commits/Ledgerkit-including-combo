@@ -230,3 +230,9 @@ See /app/memory/test_credentials.md.
 - Backend reads PAYMENT_LIVE_KEY_ID / PAYMENT_LIVE_KEY_SECRET (live-only secrets; fallback RAZORPAY_KEY_*) — live order creation verified (iteration_9)
 - Fixed: /medical-6-combo email dialog stayed open over Razorpay (blocked typing) — now closes once Razorpay opens
 - Still pending: Resend email key, add-on files upload, publish to ledgerkit.in
+
+## Update — checkout reliability + direct sticky checkout
+- razorpay.js create-order: 3 retries on 5xx/network (20s timeout), friendly busy message; backend Razorpay order.create 15s timeout
+- Bookkeeping sticky Buy Now opens Razorpay directly (no email dialog, no scroll)
+- Prod RCA: ledgerkit.in custom-domain SSL still "initializing" → domain serves OLD deployment (₹199 build, Cloudflare 52x). This job's deployment (ledgerkit-live.emergent.host) is healthy but was published before PAYMENT_LIVE_* keys were saved → user must re-publish + complete domain SSL verification
+- iteration_10: all pass

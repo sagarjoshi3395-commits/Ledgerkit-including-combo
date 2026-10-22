@@ -1,0 +1,33 @@
+{
+  "summary": "Frontend-only test of the checkout reliability fix and the direct sticky Buy Now on /business-bookkeeping-system. Every requested scenario passed on mobile (390) and desktop (1920). No payments were completed. Mocked error tests used page.route. 7 live unpaid Razorpay orders were created.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Bookkeeping sticky bar", "issues": ["The sticky button keeps saying 'Opening…' (disabled) for as long as the Razorpay modal is open, not just while it loads. It goes back to 'Buy Now · ₹X' when the modal closes. Cosmetic only, and the modal covers it."]}
+    ]
+  },
+  "verified": [
+    "Sticky bbs-sticky-buy, desktop and mobile: no scroll, no buyer-email-dialog, URL and scrollY unchanged. Button shows 'Opening…'. Razorpay iframe opens with Price Summary 290 (create-order amount 29000).",
+    "Closing Razorpay (X, then 'Yes, exit') brings back 'Buy Now · ₹290'. After toggling the add-on in pricing, the sticky shows ₹439 and opens Razorpay with 439 (amount 43900).",
+    "bbs-hero-buy first click scrolls to pricing (scrollY 0 -> 5151) with no dialog. bbs-final-buy and bbs-pricing-buy open buyer-email-dialog. Submitting the email from pricing opens Razorpay and the dialog closes.",
+    "Exit offer does not appear while Razorpay is open, tested with a top-edge mouseout on desktop and history.back() on mobile.",
+    "Mocked 520 HTML response: 3 create-order requests, then toast 'Our payment server is busy right now. Please try again in a moment.' The raw Cloudflare text is not shown and the button returns to Buy Now.",
+    "Mocked 400 {detail:'x'}: 1 request and toast 'x'.",
+    "/medical-6-combo: hero buy -> email dialog -> Razorpay (297) opens and the dialog closes."
+  ],
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "razorpay.js createOrder also waits after the last failed attempt (an extra 2.4s before the error toast). Skip the delay when attempt === 2.",
+    "If create-order returns 200 without razorpay_order_id, it is retried and then the generic 'busy' message is shown. That is acceptable.",
+    "Back button while Razorpay is open: the exit offer is correctly suppressed, but the Razorpay modal stays open. Expected, since closeCheckout only closes our own dialog."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "skipped", "frontend": "100%"},
+  "seed_data_creation": "None. 7 unpaid live Razorpay orders were created by checkout tests (amounts 29000 x4, 43900, 29700, plus 1 more 29000).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "To close Razorpay in tests, evaluate inside the api.razorpay.com frame: click button[data-testid=checkout-close], then the 'Yes, exit' button (data-testid=confirm-positive). Use history.back() through evaluate, because page.go_back times out on same-document popstate."
+}
