@@ -1,4 +1,5 @@
 import Seo from "../components/Seo";
+import ExitOffer from "../components/bookkeeping/ExitOffer";
 import { BbsBuyProvider } from "../components/bookkeeping/LandingContext";
 import {
   UrgencyBar,
@@ -40,6 +41,7 @@ export default function BookkeepingLanding() {
           <FinalCta />
         </main>
         <StickyCta />
+        <ExitOffer />
       </BbsBuyProvider>
     </div>
   );

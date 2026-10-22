@@ -58,6 +58,10 @@ export function BbsBuyProvider({ children }) {
     setSelected((cur) => (cur.includes(slug) ? cur.filter((s) => s !== slug) : [...cur, slug]));
   }, []);
 
+  const addAddOn = useCallback((slug) => {
+    setSelected((cur) => (cur.includes(slug) ? cur : [...cur, slug]));
+  }, []);
+
   const total = useMemo(
     () => product.price + addOns.filter((a) => selected.includes(a.slug)).reduce((s, a) => s + addOnPrice(a), 0),
     [product.price, addOns, selected],
@@ -106,7 +110,7 @@ export function BbsBuyProvider({ children }) {
   }
 
   return (
-    <BbsBuyCtx.Provider value={{ product, openBuy, price: product.price, regularPrice: product.regular_price, highlight, addOns, selected, toggleAddOn, total }}>
+    <BbsBuyCtx.Provider value={{ product, openBuy, price: product.price, regularPrice: product.regular_price, highlight, addOns, selected, toggleAddOn, addAddOn, total, checkoutActive: emailOpen || loading }}>
       {children}
       <BuyerEmailDialog
         open={emailOpen}
