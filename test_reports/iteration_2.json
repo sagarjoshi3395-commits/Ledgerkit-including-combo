@@ -17,5 +17,5 @@
   "seed_data_creation": "None",
   "retest_needed": false,
   "main_agent_can_self_test": true,
-  "context_for_next_testing_agent": "Base URL https://ledger-website.preview.emergentagent.com. Video mp4 files under /samples/combo-6/videos/ are intentionally missing — poster fallback is expected. When owner uploads mp4s, re-test actual playback (not just attribute wiring). Backend tests live at /app/backend/tests/test_medical_combo6.py (15 tests)."
+  "context_for_next_testing_agent": "Base URL https://ledgerkit-live.preview.emergentagent.com. Video mp4 files under /samples/combo-6/videos/ are intentionally missing — poster fallback is expected. When owner uploads mp4s, re-test actual playback (not just attribute wiring). Backend tests live at /app/backend/tests/test_medical_combo6.py (15 tests)."
 }

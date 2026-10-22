@@ -147,7 +147,7 @@ See /app/memory/test_credentials.md.
 - Re-cloned github.com/sagarjoshi3395-commits/LedgerKit-website-All into /app; copied backend (server.py, seed_data.py, email_service.py, pytest.ini, requirements.txt) + frontend (src, public, configs, plugins) verbatim.
 - Installed razorpay (2.0.1) + setuptools; added httpx to requirements.
 - Rebuilt backend/.env (gitignored): MONGO_URL/DB_NAME/CORS_ORIGINS kept; EMERGENT_EMAIL_KEY (managed Resend key), EMAIL_FROM_NAME=LedgerKit, EMAIL_REPLY_TO=ledgerkitsupport@gmail.com.
-- SITE_BASE in seed_data.py repointed to current preview domain https://ledger-website.preview.emergentagent.com so PDF download URLs resolve.
+- SITE_BASE in seed_data.py repointed to current preview domain https://ledgerkit-live.preview.emergentagent.com so PDF download URLs resolve.
 - Verified: /api/health, /api/products (6), /api/add-ons (5), /api/add-ons/combo (₹299), /api/settings; checkout returns "Payments are not configured" (RAZORPAY keys deliberately NOT set — Phase 2). Home, /products, /meta-ads-decode render (desktop+mobile).
 - PENDING (owner): RAZORPAY_KEY_ID + RAZORPAY_KEY_SECRET to enable checkout; Physiotherapy Clinical Guide PDF; point download links/emails to production domain on deploy.
 
@@ -201,3 +201,9 @@ See /app/memory/test_credentials.md.
 - New interactive cover strip under hero: all 6 guide covers (grid-cols-3 mobile / 6 desktop); tapping a cover selects that guide AND smooth-scrolls to the Sample Pages video.
 - Hero image now sits on a glowing white card with violet price badge (strike ₹1,699 → ₹297) + white floating chips.
 - Removed BUY_POINTS checklist + unused Check import. Verified desktop render clean, no overflow; mobile-safe by construction (chips sm:hidden, section overflow-hidden).
+
+## Re-import (2026-10-22) — from github.com/sagarjoshi3395-commits/Ledgerkit-including-combo
+- Workspace code already matched repo; recreated missing backend/.env + frontend/.env (MONGO_URL, DB_NAME=ledgerkit_db, CORS, SITE_BASE=preview URL, Meta pixel IDs)
+- SITE_BASE in seed_data.py now read from env (SITE_BASE) instead of hardcoded domain — set to production domain before going live
+- Services running; 7 store products + add-ons seeded; home page verified
+- PENDING: RAZORPAY_KEY_ID/RAZORPAY_KEY_SECRET and RESEND_API_KEY (or EMERGENT_EMAIL_KEY) not set → checkout shows "Payments are not configured", delivery emails skipped

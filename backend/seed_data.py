@@ -1,3 +1,9 @@
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).parent / ".env")
+
 """Seed data for the storefront. Edit here or via the admin API to change product content."""
 
 SITE_SETTINGS = {
@@ -457,7 +463,7 @@ BUNDLE_PRODUCT = {
 }
 
 
-SITE_BASE = "https://ledger-website.preview.emergentagent.com"
+SITE_BASE = os.environ.get("SITE_BASE", "").rstrip("/")
 
 MEDICAL_BUNDLE_PRODUCT = {
     "slug": "medical-reference-bundle",
