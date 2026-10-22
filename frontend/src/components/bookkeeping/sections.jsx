@@ -91,11 +91,11 @@ const SectionLabel = ({ num, children }) => (
 );
 
 /** Countdown text — each instance ticks on its own so the page itself never re-renders every second. */
-const Countdown = ({ className = "", testId, expiredText = "Launch price live" }) => {
+const Countdown = ({ className = "", testId, prefix = "", expiredText = "Limited-time price" }) => {
   const remaining = useOfferTimer(10, BBS_TIMER_KEY);
   return (
     <span className={className} data-testid={testId}>
-      {remaining != null ? fmtTime(remaining) : expiredText}
+      {remaining != null ? `${prefix}${fmtTime(remaining)}` : expiredText}
     </span>
   );
 };
@@ -108,7 +108,7 @@ export const UrgencyBar = () => {
       <div className="bbs-container flex flex-wrap items-center justify-center gap-x-3 gap-y-1 py-2 text-center font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-neutral-900">
         <span>Launch offer · ₹{price} <span className="font-semibold line-through opacity-60">₹{regularPrice}</span></span>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-2.5 py-0.5 text-volt">
-          <Timer className="h-3 w-3" /> Ends in <Countdown testId="bbs-urgency-timer" expiredText="soon" />
+          <Timer className="h-3 w-3" /> <Countdown testId="bbs-urgency-timer" prefix="Ends in " expiredText="Ending soon" />
         </span>
       </div>
     </div>
@@ -178,7 +178,7 @@ export const Hero = () => {
             <a href="#inside" className="bbs-btn-ghost">See inside the sheet</a>
           </div>
           <p className="mt-3 flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-neutral-700">
-            <Timer className="h-3.5 w-3.5" /> Launch price ends in <Countdown className="text-red-600" testId="bbs-hero-timer" expiredText="soon" />
+            <Timer className="h-3.5 w-3.5" /> <Countdown className="text-red-600" testId="bbs-hero-timer" prefix="Launch price ends in " expiredText="Launch price — ending soon" />
           </p>
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[13px] font-semibold text-neutral-600">
             <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-neutral-900" /> Fully editable</span>
@@ -425,7 +425,7 @@ export const Pricing = () => {
         <Reveal delay={0.05}>
           <h2 className="bbs-h mx-auto max-w-xl text-center text-3xl sm:text-4xl">Your entire business finance system. One file.</h2>
           <p className="mt-3 flex items-center justify-center gap-1.5 text-center font-mono text-[12px] font-bold uppercase tracking-wider text-neutral-700">
-            <Timer className="h-4 w-4" /> Launch price ends in <Countdown className="text-red-600" testId="bbs-pricing-timer" expiredText="soon" />
+            <Timer className="h-4 w-4" /> <Countdown className="text-red-600" testId="bbs-pricing-timer" prefix="Launch price ends in " expiredText="Launch price — ending soon" />
           </p>
         </Reveal>
 

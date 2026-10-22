@@ -213,3 +213,11 @@ See /app/memory/test_credentials.md.
 - /checkout/verify: email delivery moved to background task (instant response), Razorpay calls via asyncio.to_thread (no event-loop blocking), void@razorpay.com email ignored
 - razorpay.js: "Payment successful — opening your downloads" overlay + 3x verify retry
 - Awaiting owner keys: RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET, RESEND_API_KEY, RESEND_FROM
+
+## Update (2026-10-22) — Bookkeeping landing CRO revamp
+- New hidden add-on `productivity-execution-bundle` ₹149 (bookkeeping_only, files PENDING upload) → GET /api/bookkeeping/add-ons; excluded from /api/add-ons
+- /business-bookkeeping-system: urgency bar + 10-min per-visitor countdown (key lk_bbs_offer_deadline; price never changes on expiry), hero price/save%, stats row, interactive 10-tab dashboard preview (+ flow strip), "If you don't buy vs if you buy" section, pricing with add-on toggle card + live total, add-on toggle also in email dialog, new FAQs, sticky Buy Now bar on all screen sizes (safe-area aware)
+- Checkout items: [bookkeeping + selected add-ons] → one Razorpay order; InitiateCheckout with value=total
+- BuyerEmailDialog (all pages): top-anchored on phones, no open animation, no auto keyboard on touch, email inputMode/autocap off → no jumping on iOS/Android
+- Speed: hero has no entrance animation + eager/high-priority image; Home lazy-loaded; emergent script deferred
+- Razorpay keys still NOT set (user pasted in chat, secure card skipped) — production ledgerkit.in served by an older deployment

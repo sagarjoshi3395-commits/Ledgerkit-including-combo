@@ -1,0 +1,34 @@
+{
+  "summary": "Tested Business Bookkeeping landing upgrade (add-on, timers, preview, compare, sticky bar, email dialog, Meta pixel) + backend add-on endpoints + regression of /, /medical-6-combo. Everything requested works. Only minor UX notes.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/checkout/create-order", "issue": "bookkeeping_only add-on (productivity-execution-bundle) can be ordered alone or duplicated (same slug twice) - no server-side check that it is bundled with business-bookkeeping-system. Could not verify at runtime because the Razorpay key check returns 503 first."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "BuyerEmailDialog", "issue": "Input has type=email + required, so for values like 'bad' the browser's own validation bubble shows and the custom buyer-email-error never renders. The custom error only shows for values like 'a@b' that pass native validation but fail the regex. Messaging is inconsistent; consider adding noValidate on the form.", "selector": "[data-testid='buyer-email-error']", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/business-bookkeeping-system expired timer", "issues": ["After expiry the urgency bar reads 'ENDS IN SOON' and the hero shows 'Launch price ends in SOON'. The grammar is awkward; consider 'Ending soon' / 'Limited-time price'."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_bookkeeping_addons.py", "/app/test_reports/pytest/pytest_bookkeeping.xml"],
+  "action_items": [
+    "Optional: add noValidate to the BuyerEmailDialog form so the custom error shows the same way on every device",
+    "Optional: fix the post-expiry timer copy ('ENDS IN SOON')",
+    "Optional: server-side check that bookkeeping_only add-ons are bought together with the main product, and dedupe items"
+  ],
+  "critical_code_review_comments": [
+    "sections.jsx is 593 lines, close to the 700-line limit",
+    "create_razorpay_order does not dedupe or validate add-on context (see minor backend issue)"
+  ],
+  "updated_files": ["/app/backend/tests/test_bookkeeping_addons.py"],
+  "success_rate": {"backend": "100% (7/7)", "frontend": "100% of requested flows"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Verified: /api/bookkeeping/add-ons returns 1 item (149); hidden from /api/add-ons, /api/products, /api/products/{slug} returns 404; create-order returns 503 (no Razorpay keys). UI: timers tick down from 10:00; expired state shows 'soon'/'Limited' with price staying 290; preview has 10 tabs and prev/next works; compare section present; add-on toggles 290->439->290, synced both ways with the dialog; the sticky bar is hidden with translate-y-full until you scroll (so is_visible is true even when off-screen; check transform instead); dialog sits at top 12px on mobile 390; hero CTA scrolls to pricing on the 1st click and opens the dialog on the 2nd; fbq gets 4 inits, 1 PageView, then InitiateCheckout on submit; no horizontal overflow at 390; the combo-6 dialog still works."
+}

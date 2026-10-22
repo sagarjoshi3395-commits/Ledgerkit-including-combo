@@ -76,7 +76,7 @@ export default function BuyerEmailDialog({ open, onOpenChange, onSubmit, busy = 
         <DialogDescription className="mt-1.5 text-sm leading-relaxed text-slate-600">
           Enter your email — your download link for <span className="font-semibold text-ink">{productTitle}</span> is delivered here instantly after payment.
         </DialogDescription>
-        <form onSubmit={submit} className="mt-4 sm:mt-5">
+        <form onSubmit={submit} noValidate className="mt-4 sm:mt-5">
           <label htmlFor="buyer-email" className="font-mono text-[10px] font-bold uppercase tracking-widest text-slate-500">
             Email address
           </label>

@@ -258,13 +258,25 @@ async def create_razorpay_order(payload: RazorpayCreateIn):
     if not payload.items:
         raise HTTPException(status_code=400, detail="No items to check out")
 
+    # Drop duplicate lines (same product twice) so nobody is charged twice.
+    unique_items, seen_slugs = [], set()
+    for item in payload.items:
+        if item.product_slug in seen_slugs:
+            continue
+        seen_slugs.add(item.product_slug)
+        unique_items.append(item)
+
     line_items = []
     total = 0.0
     currency = "INR"
-    for item in payload.items:
+    for item in unique_items:
         product = await db.products.find_one({"slug": item.product_slug, "status": "published"})
         if not product:
             raise HTTPException(status_code=404, detail=f"Product not found: {item.product_slug}")
+        if product.get("bookkeeping_only") and "business-bookkeeping-system" not in seen_slugs:
+            raise HTTPException(status_code=400, detail="This add-on is only available with the Business Bookkeeping Sheet System.")
+        if product.get("combo6_only") and "medical-6-pdf-combo" not in seen_slugs:
+            raise HTTPException(status_code=400, detail="This add-on is only available with the 6 PDF Medical Combo.")
         edition = (product.get("editions") or {}).get(item.edition)
         if not edition:
             raise HTTPException(status_code=400, detail=f"Unknown edition '{item.edition}' for {item.product_slug}")
