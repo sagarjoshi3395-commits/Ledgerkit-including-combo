@@ -110,7 +110,7 @@ export function BbsBuyProvider({ children }) {
   }
 
   return (
-    <BbsBuyCtx.Provider value={{ product, openBuy, price: product.price, regularPrice: product.regular_price, highlight, addOns, selected, toggleAddOn, addAddOn, total, checkoutActive: emailOpen || loading }}>
+    <BbsBuyCtx.Provider value={{ product, openBuy, price: product.price, regularPrice: product.regular_price, highlight, addOns, selected, toggleAddOn, addAddOn, total, checkoutActive: emailOpen || loading, closeCheckout: () => setEmailOpen(false) }}>
       {children}
       <BuyerEmailDialog
         open={emailOpen}

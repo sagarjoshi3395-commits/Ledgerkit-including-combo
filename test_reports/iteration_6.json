@@ -1,0 +1,27 @@
+{
+  "summary": "Tested only the frontend Exit Offer popup on /business-bookkeeping-system at desktop 1920 and mobile 390, plus a regression check. All 8 requested scenarios passed. Found 2 low-priority history/UX edge cases.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "ExitOffer history trap", "issue": "The trap pushState entry stays in history after the visitor moves to another page inside the app (e.g. bookkeeping -> /products). Pressing Back from /products lands on the bookkeeping page twice (back1 and back2 both = /business-bookkeeping-system), so the visitor has to press Back one extra time. Fix: on unmount, if trapped is still true, remove or ignore the extra entry. Another option is to push the trap only after the visitor has been on the page for a while and remove it when they navigate inside the app.", "selector": "n/a", "priority": "LOW"},
+      {"component": "ExitOffer + BuyerEmailDialog on mobile", "issue": "If the email checkout dialog is open and the visitor presses Back, onPop sees checkoutActive, so trigger() returns false and the code calls history.back(). The visitor leaves the page entirely (URL becomes /) and the checkout is lost. Mobile visitors usually expect Back to just close the dialog. Consider closing the dialog and re-arming the trap instead.", "selector": "[data-testid=buyer-email-dialog]", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Optional: clean up the extra history entry when the bookkeeping page unmounts after in-app navigation",
+    "Optional: on Back while checkout is open, close the dialog instead of leaving the page"
+  ],
+  "critical_code_review_comments": [
+    "ExitOffer useEffect has [] deps and reads checkoutActive through a ref: correct.",
+    "After the email dialog is closed, the exit offer can still show on the next top-exit, because the shown flag is not set while checkout was open. This is reasonable behaviour, just noting it."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "skipped (frontend only)", "frontend": "100% of requested flows (8/8)"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Verified: a mouseout with clientY 0 and relatedTarget null opens bbs-exit-offer showing ₹439 and the timer 'LAUNCH PRICE ENDS IN 09:56'. A mouseout with clientY 300 does not open it. sessionStorage lk_bbs_exit_shown=1 is set and a second attempt does not show it. bbs-exit-close is visible and works. take-bundle opens the dialog with the add-on toggle aria-pressed=true, continue shows ₹439 and bbs-total shows ₹439. take-sheet shows ₹290. The offer is suppressed while the sticky checkout dialog is open (the flag is not set). On mobile 390: Back from the bookkeeping page keeps the URL and opens the offer (top 12px, width 366); a second Back goes to /. Regression: add-on toggle 290->439->290 works; create-order returns 503 with the toast 'Couldn't start checkout'."
+}

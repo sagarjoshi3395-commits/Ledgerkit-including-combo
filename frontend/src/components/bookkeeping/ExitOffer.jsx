@@ -27,18 +27,24 @@ const MiniTimer = () => {
  * No fake discounts — it simply offers the sheet + add-on at the normal prices.
  */
 export default function ExitOffer() {
-  const { openBuy, price, addOns, addAddOn, checkoutActive } = useBbsBuy();
+  const { openBuy, price, addOns, addAddOn, checkoutActive, closeCheckout } = useBbsBuy();
   const [open, setOpen] = useState(false);
   const activeRef = useRef(checkoutActive);
   activeRef.current = checkoutActive;
+  const closeRef = useRef(closeCheckout);
+  closeRef.current = closeCheckout;
   const addOn = addOns[0];
   const addOnCost = addOn ? addOnPrice(addOn) : 149;
 
   useEffect(() => {
+    // Came back onto our own extra history entry from another page — skip over it.
+    if (window.history.state?.bbsTrap) {
+      window.history.back();
+      return undefined;
+    }
     const alreadyShown = () => {
       try { return sessionStorage.getItem(SHOWN_KEY) === "1"; } catch (e) { return false; }
     };
-    if (alreadyShown()) return undefined;
 
     const trigger = () => {
       if (alreadyShown() || activeRef.current) return false;
@@ -56,16 +62,24 @@ export default function ExitOffer() {
 
     // Phones (and desktop Back): add one extra history entry, catch the first Back press.
     let trapped = false;
-    const timer = window.setTimeout(() => {
-      if (alreadyShown()) return;
+    const arm = () => {
       try {
         window.history.pushState({ ...(window.history.state || {}), bbsTrap: true }, "", window.location.href);
         trapped = true;
       } catch (e) { /* ignore */ }
+    };
+    const timer = window.setTimeout(() => {
+      arm();
     }, 1500);
     const onPop = (e) => {
       if (!trapped || e.state?.bbsTrap) return;
       trapped = false;
+      // Back while checkout is open: just close the checkout and stay on the page.
+      if (activeRef.current) {
+        closeRef.current?.();
+        arm();
+        return;
+      }
       if (!trigger()) window.history.back();
     };
 
