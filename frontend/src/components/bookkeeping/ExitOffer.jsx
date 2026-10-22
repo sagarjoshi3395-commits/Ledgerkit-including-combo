@@ -37,11 +37,6 @@ export default function ExitOffer() {
   const addOnCost = addOn ? addOnPrice(addOn) : 149;
 
   useEffect(() => {
-    // Came back onto our own extra history entry from another page — skip over it.
-    if (window.history.state?.bbsTrap) {
-      window.history.back();
-      return undefined;
-    }
     const alreadyShown = () => {
       try { return sessionStorage.getItem(SHOWN_KEY) === "1"; } catch (e) { return false; }
     };
@@ -61,7 +56,9 @@ export default function ExitOffer() {
     };
 
     // Phones (and desktop Back): add one extra history entry, catch the first Back press.
-    let trapped = false;
+    // If we're already standing on our extra entry (reload, or Back from another page),
+    // reuse it instead of adding another one — keeps history clean and idempotent.
+    let trapped = !!window.history.state?.bbsTrap;
     const arm = () => {
       try {
         window.history.pushState({ ...(window.history.state || {}), bbsTrap: true }, "", window.location.href);
@@ -69,7 +66,8 @@ export default function ExitOffer() {
       } catch (e) { /* ignore */ }
     };
     const timer = window.setTimeout(() => {
-      arm();
+      if (!trapped && !window.history.state?.bbsTrap) arm();
+      else trapped = true;
     }, 1500);
     const onPop = (e) => {
       if (!trapped || e.state?.bbsTrap) return;

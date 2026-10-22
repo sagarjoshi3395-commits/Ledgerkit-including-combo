@@ -1,0 +1,26 @@
+{
+  "summary": "Frontend-only retest of the ExitOffer popup on /business-bookkeeping-system. 4 scenarios tested: mobile Back trap, Fix 1 (in-app navigation history), Fix 2 (Back while checkout is open) and desktop mouseout. Passed: mobile Back trap, Fix 2 and desktop (3/4). FAILED: Fix 1. In the dev preview the early-return history.back() in the ExitOffer effect runs twice because of React.StrictMode, so Back from /products skips past the bookkeeping page. Reloading the bookkeeping page after the trap is armed also kicks the visitor to the previous page.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "ExitOffer useEffect early return (window.history.state?.bbsTrap -> history.back())", "issue": "Steps: open / then /business-bookkeeping-system, wait 2.5s (state becomes {idx:0,bbsTrap:true}), click the footer link /products, press Back. Expected: /business-bookkeeping-system. Actual: '/'. A second Back gives about:blank. Instrumenting history.back showed it is called TWICE from the BookkeepingLanding chunk. React.StrictMode (src/index.js) runs mount->cleanup->mount in dev. The early-return branch has no cleanup, so both mounts call history.back() and go back 2 entries. Same root cause: reloading the bookkeeping page after the trap is armed (history.state.bbsTrap persists across reload) sends the visitor to '/'. A production build (no StrictMode double effects) would probably call back() only once. Still, the code is not idempotent and the preview is broken.", "selector": "n/a", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Make the 'skip trap entry' back() idempotent in ExitOffer.jsx. Option A: `const t = setTimeout(() => window.history.back(), 0); return () => clearTimeout(t);` so the StrictMode cleanup cancels the first call. Option B: a module-level guard such as `let skipping = false; if (state.bbsTrap && !skipping) { skipping = true; history.back(); }` and reset it on popstate. Then retest Back from /products (expect bookkeeping, then the previous page) and a reload on the bookkeeping page (expect to stay on /business-bookkeeping-system)."
+  ],
+  "critical_code_review_comments": [
+    "Effects with side effects on history must be StrictMode-safe. The early-return branch has no cleanup, so it runs twice in dev.",
+    "After the skip-back lands on the original entry, the component stays mounted with the early-returned effect. There are no mouseout or popstate listeners and the trap is not re-armed, so the exit offer can no longer trigger on that visit. This may be acceptable, but note it.",
+    "Fix 2 works: closeCheckout() + arm() keeps the visitor on the page. lk_bbs_exit_shown stays unset, so the next Back shows the offer."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "skipped (frontend only)", "frontend": "75% (3/4 scenarios)"},
+  "seed_data_creation": "None",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Verified: (1) Mobile 390: '/' (full load) -> bookkeeping, wait 2.5s, Back -> URL stays and bbs-exit-offer is visible with ₹439 and timer 09:57; Escape then Back -> '/'. (2) Fix 2: scroll, click bbs-sticky-buy, buyer-email-dialog opens; Back -> dialog closes, URL stays, offer not shown, flag null; Back again -> offer shown; close it and Back -> '/'. (3) Desktop 1920: mouseout clientY 0 with relatedTarget null opens the offer with title 'Get the full business kit for ₹439'; flag set to 1; bbs-exit-close works; second trigger is suppressed; take-bundle opens buyer-email-dialog with the add-on checked and 'Continue to Payment — ₹439'. FAILED: Fix 1. Back from /products lands on '/' because history.back is called twice (StrictMode). Use add_init_script to wrap history.back and count the calls. The visible /products link on mobile is footer-all-products (nav-products is hidden on mobile)."
+}
