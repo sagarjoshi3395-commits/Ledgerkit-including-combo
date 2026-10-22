@@ -107,7 +107,7 @@ export default function MedicalCombo6() {
 
   const activeGuideData = GUIDES.find((g) => g.key === activeGuide) || GUIDES[0];
 
-  const pay = async (email) => {
+  const pay = async ({ email, phone } = {}) => {
     setBusy(true);
     trackEvent("InitiateCheckout", {
       content_name: COMBO_SLUG,
@@ -120,6 +120,7 @@ export default function MedicalCombo6() {
     const opened = await startRazorpayCheckout({
       items: [{ product_slug: COMBO_SLUG, edition: "digital" }, ...selected.map((s) => ({ product_slug: s, edition: "digital" }))],
       email,
+      phone,
       onError: (msg) => {
         setBusy(false);
         toast.error("Couldn't start checkout", { description: msg, duration: 8000 });

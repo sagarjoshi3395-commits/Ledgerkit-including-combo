@@ -50,7 +50,7 @@ export default function PricingEditions({ product }) {
     setPending({ items, value, title });
   }
 
-  async function handleEmailSubmit(email) {
+  async function handleEmailSubmit({ email, phone } = {}) {
     if (!pending || busy) return;
     const { items, value } = pending;
     setBusy(true);
@@ -58,6 +58,7 @@ export default function PricingEditions({ product }) {
     await startRazorpayCheckout({
       items,
       email,
+      phone,
       onError: (msg) => toast.error("Couldn't start checkout", { description: msg }),
       onDismiss: () => { setBusy(false); setPending(null); },
     });

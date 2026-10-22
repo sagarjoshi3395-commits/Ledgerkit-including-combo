@@ -110,7 +110,7 @@ export function MrgBuyProvider({ children }) {
     setSelectedAddOns((prev) => (prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug]));
   };
 
-  async function handleEmailSubmit(email) {
+  async function handleEmailSubmit({ email, phone } = {}) {
     setLoading(true);
     const extraItems = comboOn
       ? [{ product_slug: combo.slug }]
@@ -125,6 +125,7 @@ export function MrgBuyProvider({ children }) {
     await startRazorpayCheckout({
       items,
       email,
+      phone,
       onError: (msg) => toast.error("Couldn't start checkout", { description: msg }),
       onDismiss: () => {
         setLoading(false);

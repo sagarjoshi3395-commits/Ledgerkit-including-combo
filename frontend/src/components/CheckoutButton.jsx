@@ -23,7 +23,7 @@ export function CheckoutButton({ product, edition = "digital", className = "", c
     setEmailOpen(true);
   }
 
-  async function handleEmailSubmit(email) {
+  async function handleEmailSubmit({ email, phone } = {}) {
     setLoading(true);
     trackEvent("InitiateCheckout", {
       content_name: product?.slug,
@@ -35,6 +35,7 @@ export function CheckoutButton({ product, edition = "digital", className = "", c
     await startRazorpayCheckout({
       items: [{ product_slug: product.slug, edition }],
       email,
+      phone,
       onError: (msg) => toast.error("Couldn't start checkout", { description: msg }),
       onDismiss: () => { setLoading(false); setEmailOpen(false); },
       onSuccess: ({ order_id }) => {

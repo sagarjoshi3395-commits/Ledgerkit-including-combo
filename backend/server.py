@@ -83,6 +83,7 @@ class Order(BaseDocument):
     amount: Optional[float] = None
     currency: str = "INR"
     email: Optional[str] = None
+    phone: Optional[str] = None
     status: str = "payment_pending"
     payment_provider: str = "external"
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -96,6 +97,7 @@ class CheckoutItem(BaseModel):
 class RazorpayCreateIn(BaseModel):
     items: List[CheckoutItem]
     email: Optional[EmailStr] = None
+    phone: Optional[str] = None
 
 
 class RazorpayVerifyIn(BaseModel):
@@ -305,6 +307,7 @@ async def create_razorpay_order(payload: RazorpayCreateIn):
         amount=total,
         currency=currency,
         email=str(payload.email) if payload.email else None,
+        phone=payload.phone or None,
         payment_provider="razorpay",
     )
     order_doc = order.to_mongo()

@@ -149,8 +149,7 @@ export const Marquee = () => (
 
 /* ---------------- hero (no entrance animation → paints instantly) ---------------- */
 export const Hero = () => {
-  const { openBuy, price, regularPrice } = useBbsBuy();
-  const off = regularPrice ? Math.round((1 - price / regularPrice) * 100) : 0;
+  const { openBuy, price } = useBbsBuy();
   return (
     <section className="bbs-container relative pb-12 pt-10 md:pb-16 md:pt-16">
       <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
@@ -165,13 +164,7 @@ export const Hero = () => {
             Track income, expenses, profit &amp; loss, taxes and monthly, quarterly &amp; annual dashboards — all automatically, with clean graphs. Works in Excel or Google Sheets.
           </p>
 
-          <div className="mt-6 flex items-end gap-3">
-            <span className="bbs-h text-5xl" data-testid="bbs-hero-price">₹{price}</span>
-            <span className="pb-1.5 text-lg font-bold text-neutral-400 line-through">₹{regularPrice}</span>
-            {off > 0 && <span className="mb-2 rounded bg-neutral-900 px-2 py-0.5 font-mono text-[11px] font-bold uppercase tracking-wider text-volt">Save {off}%</span>}
-          </div>
-
-          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
             <button type="button" onClick={() => openBuy()} data-testid="bbs-hero-buy" className="bbs-btn text-base">
               Get lifetime access · ₹{price} <ArrowUpRight className="h-5 w-5" />
             </button>

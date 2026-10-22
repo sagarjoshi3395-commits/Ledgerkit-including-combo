@@ -85,15 +85,13 @@ export function BbsBuyProvider({ children }) {
     scrollToPricing();
   }, [loading, pricingSeen]);
 
-  // Sticky "Buy Now": skip our email step and open Razorpay straight away
-  // (Razorpay collects the buyer's email/phone itself).
+  // Sticky "Buy Now": open our quick email + mobile step, then Razorpay.
   const checkoutNow = () => {
     if (loading) return;
-    setEmailOpen(false);
-    handleEmailSubmit(undefined);
+    setEmailOpen(true);
   };
 
-  async function handleEmailSubmit(email) {
+  async function handleEmailSubmit({ email, phone } = {}) {
     setLoading(true);
     trackEvent("InitiateCheckout", {
       content_name: product.slug,
@@ -106,6 +104,7 @@ export function BbsBuyProvider({ children }) {
     const opened = await startRazorpayCheckout({
       items: [{ product_slug: product.slug, edition: "digital" }, ...selected.map((s) => ({ product_slug: s, edition: "digital" }))],
       email,
+      phone,
       onError: (msg) => {
         setLoading(false);
         toast.error("Couldn't start checkout", { description: msg, duration: 8000 });

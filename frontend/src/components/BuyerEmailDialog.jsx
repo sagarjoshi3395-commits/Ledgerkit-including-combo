@@ -3,6 +3,7 @@ import { Mail, ArrowRight, Loader2, ShieldCheck, Check, Plus } from "lucide-reac
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "./ui/dialog";
 
 const EMAIL_KEY = "lk_buyer_email";
+const PHONE_KEY = "lk_buyer_phone";
 
 const fmtINR = (v) => `₹${Number(v).toLocaleString("en-IN")}`;
 
@@ -22,35 +23,63 @@ export function saveBuyerEmail(email) {
   }
 }
 
+function getSavedBuyerPhone() {
+  try {
+    return localStorage.getItem(PHONE_KEY) || "";
+  } catch {
+    return "";
+  }
+}
+
+function saveBuyerPhone(phone) {
+  try {
+    localStorage.setItem(PHONE_KEY, phone);
+  } catch {
+    /* storage unavailable */
+  }
+}
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
- * Asks the buyer for their email before opening Razorpay.
- * The same email is pre-filled in Razorpay, stored on the order, and is where
- * the product delivery email is sent after payment.
+ * Asks the buyer for their email + mobile number before opening Razorpay.
+ * The email is stored on the order and is where the product download link is
+ * sent after payment; the mobile number is pre-filled in Razorpay.
  */
 export default function BuyerEmailDialog({ open, onOpenChange, onSubmit, busy = false, productTitle = "your guide", total = null, addOns = [], selectedAddOns = [], onToggleAddOn, addOnPrice }) {
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
   const inputRef = useRef(null);
   const priceOf = addOnPrice || ((a) => a?.editions?.digital?.price ?? a?.sale_price ?? 0);
 
   useEffect(() => {
     if (open) {
       setEmail(getSavedBuyerEmail());
+      setPhone(getSavedBuyerPhone());
       setError("");
+      setPhoneError("");
     }
   }, [open]);
 
   function submit(e) {
     e.preventDefault();
     const value = email.trim().toLowerCase();
+    const digits = phone.replace(/\D/g, "");
+    let ok = true;
     if (!EMAIL_RE.test(value)) {
       setError("Please enter a valid email address");
-      return;
+      ok = false;
     }
+    if (digits.length < 10) {
+      setPhoneError("Please enter a valid 10-digit mobile number");
+      ok = false;
+    }
+    if (!ok) return;
     saveBuyerEmail(value);
-    onSubmit(value);
+    saveBuyerPhone(digits);
+    onSubmit({ email: value, phone: digits });
   }
 
   return (
@@ -98,6 +127,24 @@ export default function BuyerEmailDialog({ open, onOpenChange, onSubmit, busy = 
             className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-base text-ink outline-none transition-colors placeholder:text-slate-400 focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20"
           />
           {error && <p className="mt-1.5 text-xs font-medium text-red-600" data-testid="buyer-email-error">{error}</p>}
+
+          <label htmlFor="buyer-phone" className="mt-4 block font-mono text-[10px] font-bold uppercase tracking-widest text-slate-500">
+            Mobile number
+          </label>
+          <input
+            id="buyer-phone"
+            type="tel"
+            inputMode="numeric"
+            autoComplete="tel"
+            enterKeyHint="go"
+            required
+            value={phone}
+            onChange={(e) => { setPhone(e.target.value); setPhoneError(""); }}
+            placeholder="10-digit mobile number"
+            data-testid="buyer-phone-input"
+            className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-base text-ink outline-none transition-colors placeholder:text-slate-400 focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20"
+          />
+          {phoneError && <p className="mt-1.5 text-xs font-medium text-red-600" data-testid="buyer-phone-error">{phoneError}</p>}
 
           {addOns.length > 0 && (
             <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3" data-testid="buyer-dialog-addons">

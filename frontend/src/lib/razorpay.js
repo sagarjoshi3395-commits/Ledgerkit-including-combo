@@ -51,14 +51,14 @@ export function loadRazorpayScript() {
  * @param {Function} [opts.onDismiss] - called when the user closes the modal
  * @returns {Promise<boolean>} true if the modal opened
  */
-export async function startRazorpayCheckout({ items, email, prefill = {}, onSuccess, onError, onDismiss }) {
+export async function startRazorpayCheckout({ items, email, phone, prefill = {}, onSuccess, onError, onDismiss }) {
   // Load the checkout script and create the server-side order concurrently.
   const createOrder = async () => {
     let lastErr = null;
     // Retry server/network hiccups (5xx, timeouts) so a brief blip never blocks a buyer.
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
-        const res = await api.post("/checkout/create-order", { items, email, ...getStoredUtms() }, { timeout: 20000 });
+        const res = await api.post("/checkout/create-order", { items, email, phone, ...getStoredUtms() }, { timeout: 20000 });
         if (res?.data?.razorpay_order_id) return res.data;
         lastErr = null;
       } catch (err) {
@@ -89,7 +89,7 @@ export async function startRazorpayCheckout({ items, email, prefill = {}, onSucc
     name: order.name || "LedgerKit",
     description: order.description,
     order_id: order.razorpay_order_id,
-    prefill: { email: email || prefill.email || "", ...prefill },
+    prefill: { email: email || prefill.email || "", contact: phone || prefill.contact || "", ...prefill },
     theme: { color: "#2E1AC8" },
     handler: async (response) => {
       showConfirmingOverlay();

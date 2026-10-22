@@ -87,7 +87,7 @@ export default function StickyBuyBar({ product, offset = 600 }) {
     openEmail(product.slug, edition.price, product.title);
   };
 
-  const handleEmailSubmit = async (email) => {
+  const handleEmailSubmit = async ({ email, phone } = {}) => {
     if (!pending) return;
     setBusy(true);
     trackEvent("InitiateCheckout", {
@@ -99,6 +99,7 @@ export default function StickyBuyBar({ product, offset = 600 }) {
     await startRazorpayCheckout({
       items: [{ product_slug: pending.slug, edition: "digital" }],
       email,
+      phone,
       onError: (msg) => toast.error("Couldn't start checkout", { description: msg }),
       onDismiss: () => { setBusy(false); setEmailOpen(false); setPending(null); },
     });

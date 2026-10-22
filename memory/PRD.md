@@ -236,3 +236,11 @@ See /app/memory/test_credentials.md.
 - Bookkeeping sticky Buy Now opens Razorpay directly (no email dialog, no scroll)
 - Prod RCA: ledgerkit.in custom-domain SSL still "initializing" → domain serves OLD deployment (₹199 build, Cloudflare 52x). This job's deployment (ledgerkit-live.emergent.host) is healthy but was published before PAYMENT_LIVE_* keys were saved → user must re-publish + complete domain SSL verification
 - iteration_10: all pass
+
+## Update (2026-06, v-email+phone capture)
+- Checkout now collects BOTH email AND mobile number before Razorpay (delivery was failing when sticky Buy Now bypassed email capture — orders had no email).
+- BuyerEmailDialog.jsx: added required 10-digit mobile field (`buyer-phone-input`), saved to localStorage, validated; onSubmit now returns {email, phone}.
+- All callers updated to {email, phone}: bookkeeping LandingContext, medical LandingContext, CheckoutButton, StickyBuyBar, PricingEditions, MedicalCombo6.
+- Sticky "Buy Now" (bookkeeping) `checkoutNow` no longer bypasses — opens the email+mobile dialog, then Razorpay.
+- razorpay.js forwards phone → create-order body + Razorpay prefill.contact. Backend: RazorpayCreateIn.phone + Order.phone stored. Verified via curl (order created, phone accepted).
+- Bookkeeping hero: removed standalone big ₹290/₹999/Save% price block from top ("remove 290 text").
