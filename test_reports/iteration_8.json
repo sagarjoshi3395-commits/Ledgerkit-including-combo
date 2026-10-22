@@ -1,0 +1,17 @@
+{
+  "summary": "Frontend-only retest of the ExitOffer fix for the MEDIUM issue from iteration_7 (history.back being called twice under StrictMode). Tested on the dev preview, which runs StrictMode. history.back was wrapped with add_init_script to count calls: ExitOffer now makes 0 calls. All scenarios passed. Fix 1: Back from /products lands on /business-bookkeeping-system with state {idx:0,bbsTrap:true}, a second Back opens the offer with the URL unchanged, and a third Back goes to '/'. Reload: after the trap is armed, a reload (also tested with two reloads) keeps the visitor on the bookkeeping page, Back opens the offer, and the next Back goes to '/'. Regressions passed: mobile 390 Back trap; Back while buyer-email-dialog is open closes the dialog, stays on the page and does not show the offer, then the next Back shows the offer; desktop mouseout at the top opens the offer once per session (a second trigger is suppressed after closing); bbs-exit-take-bundle opens buyer-email-dialog with the add-on checked and 'Continue to Payment — ₹439'.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "The effect is now StrictMode-safe. It has no history.back() on mount, the arm timer is cleared on cleanup, and an existing bbsTrap entry is reused, so history.length did not grow on reload.",
+    "Minor and acceptable: if the session flag is already set and the visitor lands on the trap entry, a Back calls history.back() once from onPop. This costs one extra hop and was not observed as a problem."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "skipped (frontend only)", "frontend": "100% (7/7 scenarios)"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "ExitOffer history trap verified on the dev preview (StrictMode). Use add_init_script to wrap history.back and count calls. On mobile the /products link is footer-all-products. Clear sessionStorage lk_bbs_exit_shown between scenarios. The desktop trigger is dispatched as MouseEvent('mouseout', {clientY:0, relatedTarget:null}) on document."
+}

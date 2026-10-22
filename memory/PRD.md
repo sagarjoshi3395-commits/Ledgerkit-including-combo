@@ -221,3 +221,7 @@ See /app/memory/test_credentials.md.
 - BuyerEmailDialog (all pages): top-anchored on phones, no open animation, no auto keyboard on touch, email inputMode/autocap off → no jumping on iOS/Android
 - Speed: hero has no entrance animation + eager/high-priority image; Home lazy-loaded; emergent script deferred
 - Razorpay keys still NOT set (user pasted in chat, secure card skipped) — production ledgerkit.in served by an older deployment
+
+## Update — Exit offer (bookkeeping)
+- components/bookkeeping/ExitOffer.jsx: once per session (sessionStorage lk_bbs_exit_shown); desktop mouse-out top + Back-button trap (one history entry, idempotent, reuses bbsTrap entry on reload/back). Offers sheet+add-on ₹439 or sheet ₹290 at normal prices; Back while checkout open just closes checkout. Pixel custom events ExitOfferShown / ExitOfferAccepted
+- Tested: iteration_6–8 all pass

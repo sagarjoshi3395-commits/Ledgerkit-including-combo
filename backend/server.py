@@ -22,8 +22,10 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-RAZORPAY_KEY_ID = os.environ.get("RAZORPAY_KEY_ID", "")
-RAZORPAY_KEY_SECRET = os.environ.get("RAZORPAY_KEY_SECRET", "")
+# Live-only Razorpay keys (PAYMENT_LIVE_KEY_ID / PAYMENT_LIVE_KEY_SECRET) take priority;
+# RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET still work as a fallback.
+RAZORPAY_KEY_ID = (os.environ.get("PAYMENT_LIVE_KEY_ID") or os.environ.get("RAZORPAY_KEY_ID", "")).strip()
+RAZORPAY_KEY_SECRET = (os.environ.get("PAYMENT_LIVE_KEY_SECRET") or os.environ.get("RAZORPAY_KEY_SECRET", "")).strip()
 razorpay_client = (
     razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
     if RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET
