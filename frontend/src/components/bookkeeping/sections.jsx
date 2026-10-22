@@ -553,7 +553,7 @@ export const FinalCta = () => {
 
 /* ---------------- sticky buy bar (all screens) ---------------- */
 export const StickyCta = () => {
-  const { openBuy, price, regularPrice, total, selected } = useBbsBuy();
+  const { checkoutNow, loading, price, regularPrice, total, selected } = useBbsBuy();
   const [show, setShow] = useState(false);
   useEffect(() => {
     let ticking = false;
@@ -584,8 +584,8 @@ export const StickyCta = () => {
             <span className="inline-flex items-center gap-1 font-mono font-bold text-red-600"><Timer className="h-3 w-3" /><Countdown testId="bbs-sticky-timer" expiredText="Limited" /></span>
           </p>
         </div>
-        <button type="button" onClick={() => openBuy(true)} data-testid="bbs-sticky-buy" className="bbs-btn shrink-0 !px-5 !py-2.5 !text-[15px] !shadow-[3px_3px_0_#d4ff11]">
-          Buy Now · ₹{total || price}
+        <button type="button" onClick={checkoutNow} disabled={loading} data-testid="bbs-sticky-buy" className="bbs-btn shrink-0 !px-5 !py-2.5 !text-[15px] !shadow-[3px_3px_0_#d4ff11] disabled:opacity-70">
+          {loading ? "Opening…" : `Buy Now · ₹${total || price}`}
         </button>
       </div>
     </div>

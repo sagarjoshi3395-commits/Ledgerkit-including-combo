@@ -311,13 +311,13 @@ async def create_razorpay_order(payload: RazorpayCreateIn):
     order_doc["items"] = line_items
 
     try:
-        rzp_order = await asyncio.to_thread(razorpay_client.order.create, {
+        rzp_order = await asyncio.wait_for(asyncio.to_thread(razorpay_client.order.create, {
             "amount": amount_paise,
             "currency": currency,
             "receipt": order.order_id,
             "payment_capture": 1,
             "notes": {"order_id": order.order_id},
-        })
+        }), timeout=15)
     except Exception as exc:
         logger.error("Razorpay order creation failed: %s", exc)
         raise HTTPException(status_code=502, detail="Could not create payment order. Please try again.")

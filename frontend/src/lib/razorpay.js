@@ -54,14 +54,25 @@ export function loadRazorpayScript() {
 export async function startRazorpayCheckout({ items, email, prefill = {}, onSuccess, onError, onDismiss }) {
   // Load the checkout script and create the server-side order concurrently.
   const createOrder = async () => {
-    try {
-      const res = await api.post("/checkout/create-order", { items, email, ...getStoredUtms() });
-      return res.data;
-    } catch (err) {
-      const detail = err?.response?.data?.detail;
-      onError?.(typeof detail === "string" ? detail : "Couldn't start checkout. Please try again.");
-      return null;
+    let lastErr = null;
+    // Retry server/network hiccups (5xx, timeouts) so a brief blip never blocks a buyer.
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        const res = await api.post("/checkout/create-order", { items, email, ...getStoredUtms() }, { timeout: 20000 });
+        if (res?.data?.razorpay_order_id) return res.data;
+        lastErr = null;
+      } catch (err) {
+        lastErr = err;
+        const status = err?.response?.status;
+        if (status && status < 500) break; // real validation error — don't retry
+      }
+      await new Promise((r) => setTimeout(r, 800 * (attempt + 1)));
     }
+    const status = lastErr?.response?.status;
+    const detail = lastErr?.response?.data?.detail;
+    if (status && status < 500 && typeof detail === "string") onError?.(detail);
+    else onError?.("Our payment server is busy right now. Please try again in a moment.");
+    return null;
   };
 
   const [scriptOk, order] = await Promise.all([loadRazorpayScript(), createOrder()]);

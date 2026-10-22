@@ -85,6 +85,14 @@ export function BbsBuyProvider({ children }) {
     scrollToPricing();
   }, [loading, pricingSeen]);
 
+  // Sticky "Buy Now": skip our email step and open Razorpay straight away
+  // (Razorpay collects the buyer's email/phone itself).
+  const checkoutNow = () => {
+    if (loading) return;
+    setEmailOpen(false);
+    handleEmailSubmit(undefined);
+  };
+
   async function handleEmailSubmit(email) {
     setLoading(true);
     trackEvent("InitiateCheckout", {
@@ -110,7 +118,7 @@ export function BbsBuyProvider({ children }) {
   }
 
   return (
-    <BbsBuyCtx.Provider value={{ product, openBuy, price: product.price, regularPrice: product.regular_price, highlight, addOns, selected, toggleAddOn, addAddOn, total, checkoutActive: emailOpen || loading, closeCheckout: () => setEmailOpen(false) }}>
+    <BbsBuyCtx.Provider value={{ product, openBuy, price: product.price, regularPrice: product.regular_price, highlight, addOns, selected, toggleAddOn, addAddOn, total, checkoutActive: emailOpen || loading, closeCheckout: () => setEmailOpen(false), checkoutNow, loading }}>
       {children}
       <BuyerEmailDialog
         open={emailOpen}
