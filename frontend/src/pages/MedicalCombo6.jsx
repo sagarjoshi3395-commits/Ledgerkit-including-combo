@@ -182,7 +182,7 @@ export default function MedicalCombo6() {
         <div className="pointer-events-none absolute -left-28 top-8 h-72 w-72 rounded-full bg-brand-200/50 blur-3xl" />
         <div className="pointer-events-none absolute -right-28 bottom-0 h-80 w-80 rounded-full bg-brand-400/25 blur-3xl" />
         <div className="relative mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[1.05fr_1fr] lg:gap-14">
-          <Reveal>
+          <div>
             <span className="inline-flex items-center gap-2 rounded-full bg-ember px-3.5 py-1.5 font-mono text-[10px] font-bold uppercase tracking-widest text-white shadow-subtle" data-testid="combo6-hero-badge">
               6 medical guides · 1 powerful combo
             </span>
@@ -230,16 +230,18 @@ export default function MedicalCombo6() {
                 <CountdownBoxes secs={offerSecs} testId="combo6-hero-countdown-boxes" />
               </div>
             )}
-          </Reveal>
-          <Reveal className="relative">
+          </div>
+          <div className="relative">
             <div className="relative mx-auto max-w-md lg:max-w-none">
               <div className="absolute -inset-4 rounded-[2.2rem] bg-gradient-to-tr from-brand-600/15 via-brand-400/25 to-transparent blur-2xl" />
               <img
                 src="/samples/combo-6/bundle-6-books.webp"
+                srcSet="/samples/combo-6/bundle-6-books-640.webp 640w, /samples/combo-6/bundle-6-books.webp 900w"
+                sizes="(max-width: 1024px) 92vw, 540px"
                 alt="Ledgerkit 6 essential medical guides combo"
                 className="relative w-full rounded-3xl border border-slate-200 bg-white shadow-2xl"
-                width="1100"
-                height="825"
+                width="900"
+                height="565"
                 loading="eager"
                 fetchPriority="high"
                 decoding="async"
@@ -256,7 +258,7 @@ export default function MedicalCombo6() {
                 <BookOpen className="h-3.5 w-3.5 text-brand-600" /> 6 guides inside
               </span>
             </div>
-          </Reveal>
+          </div>
         </div>
       </section>
 

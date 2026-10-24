@@ -251,3 +251,4 @@ See /app/memory/test_credentials.md.
 - Added Without vs With section, 3 static testimonials (placeholders), removed refund FAQ, Radiology add-on renamed Physiotherapy Guide, footer email Medicalmasterbook@gmail.com on medical pages
 - Countdown: looping 15-min per-visitor timer (useOfferTimer loop=true, key lk_c6_deadline), HH:MM:SS boxes in hero + pricing card; price never changes on expiry
 - Sample pages rebuilt as clean single full pages (stitched from page-flow videos via /app/scripts/stitch_pages.py + split_pages.py), 440px webp 10-56KB
+- Perf pass: hero 132KB→48KB mobile (640w srcset)/75KB desktop, covers ~21KB, sample pages q66 (~690KB total, lazy), hero no longer waits on framer-motion Reveal, Google Fonts non-render-blocking
