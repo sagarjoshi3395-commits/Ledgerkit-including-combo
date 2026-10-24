@@ -249,3 +249,5 @@ See /app/memory/test_credentials.md.
 - Price 297→290 (seed + fallback); hero headline/sub/audience chips/checks; hero price + 6-cover row removed; hero CTA = Preview sample pages (scrolls to #samples)
 - Video samples replaced by flowing image rows (Medicine L, Disease R, Emergency L, Ayurvedic R; ECG+Lab behind "See more"), 5 pages/guide, ~15-40KB webp in /samples/combo-6/pages, non-clickable
 - Added Without vs With section, 3 static testimonials (placeholders), removed refund FAQ, Radiology add-on renamed Physiotherapy Guide, footer email Medicalmasterbook@gmail.com on medical pages
+- Countdown: looping 15-min per-visitor timer (useOfferTimer loop=true, key lk_c6_deadline), HH:MM:SS boxes in hero + pricing card; price never changes on expiry
+- Sample pages rebuilt as clean single full pages (stitched from page-flow videos via /app/scripts/stitch_pages.py + split_pages.py), 440px webp 10-56KB

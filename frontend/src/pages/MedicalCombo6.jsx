@@ -13,7 +13,24 @@ import { Reveal } from "@/components/Reveal";
 const COMBO_SLUG = "medical-6-pdf-combo";
 const FALLBACK_PRICE = 290;
 const PAGE_DIR = "/samples/combo-6/pages";
-const pages = (k) => [1, 2, 3, 4, 5].map((n) => `${PAGE_DIR}/${k}-${n}.webp`);
+const pages = (k) => (k === "disease" ? [1, 2, 3, 4] : [1, 2, 3, 4, 5]).map((n) => `${PAGE_DIR}/${k}-${n}.webp`);
+
+const CountdownBoxes = ({ secs, dark = false, testId }) => {
+  const parts = [["Hours", Math.floor(secs / 3600)], ["Mins", Math.floor((secs % 3600) / 60)], ["Secs", secs % 60]];
+  return (
+    <div className="flex items-center gap-2" data-testid={testId}>
+      {parts.map(([label, v], i) => (
+        <div key={label} className="flex items-center gap-2">
+          <div className={`min-w-[54px] rounded-lg px-2 py-1.5 text-center ${dark ? "bg-white/10" : "bg-ink-surface"}`}>
+            <span className="block font-display text-2xl font-extrabold tabular-nums leading-none text-brand-400">{String(v).padStart(2, "0")}</span>
+            <span className="mt-1 block font-mono text-[9px] font-bold uppercase tracking-widest text-slate-400">{label}</span>
+          </div>
+          {i < 2 && <span className={`font-display text-xl font-extrabold ${dark ? "text-white/60" : "text-ink"}`}>:</span>}
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const GUIDES = [
   { key: "disease", tab: "Disease", title: "Disease Reference Guide", cover: "/samples/combo-6/cover-disease.webp", color: "#2563EB", desc: "120+ common diseases: causes, symptoms, diagnosis, treatment overview.", points: ["120+ common diseases", "Causes & symptoms", "Diagnosis & treatment overview"], tags: ["120+ diseases", "Causes & symptoms", "Diagnosis", "Treatment overview"] },
@@ -73,7 +90,7 @@ export default function MedicalCombo6() {
   const [selected, setSelected] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const offerSecs = useOfferTimer(9);
+  const offerSecs = useOfferTimer(15, "lk_c6_deadline", true);
   const offerClock = offerSecs == null ? null : `${String(Math.floor(offerSecs / 60)).padStart(2, "0")}:${String(offerSecs % 60).padStart(2, "0")}`;
 
   useEffect(() => {
@@ -199,7 +216,7 @@ export default function MedicalCombo6() {
                 <Eye className="h-4 w-4" /> Preview sample pages <ChevronDown className="h-4 w-4" />
               </button>
               {offerClock && (
-                <span className="inline-flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-slate-500" data-testid="combo6-hero-timer">
+                <span className="inline-flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-slate-500 hidden" data-testid="combo6-hero-timer">
                   <Timer className="h-3.5 w-3.5 text-ember" /> Launch offer ends in <span className="tabular-nums text-ember">{offerClock}</span>
                 </span>
               )}
@@ -207,6 +224,12 @@ export default function MedicalCombo6() {
             <p className="mt-3 flex items-center gap-1.5 text-xs text-slate-500">
               <ShieldCheck className="h-3.5 w-3.5 text-brand-600" /> Secure payment · Instant access · Colourful PDF
             </p>
+            {offerSecs != null && (
+              <div className="mt-5 inline-flex flex-col gap-2 rounded-xl border border-ember/30 bg-white p-3 shadow-subtle sm:flex-row sm:items-center sm:gap-4" data-testid="combo6-hero-countdown">
+                <span className="c6-pulse inline-flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-ember"><Timer className="h-4 w-4" /> Launch offer ends in</span>
+                <CountdownBoxes secs={offerSecs} testId="combo6-hero-countdown-boxes" />
+              </div>
+            )}
           </Reveal>
           <Reveal className="relative">
             <div className="relative mx-auto max-w-md lg:max-w-none">
@@ -333,9 +356,9 @@ export default function MedicalCombo6() {
                       key={`${src}-${j}`}
                       src={src}
                       alt={`${g.title} sample page`}
-                      width="360"
-                      height="640"
-                      className="h-64 w-36 shrink-0 select-none rounded-xl border border-slate-200 bg-white object-cover object-top shadow-subtle sm:h-80 sm:w-[180px]"
+                      width="440"
+                      height={g.key === "disease" ? 542 : 653}
+                      className="h-72 w-auto shrink-0 select-none rounded-lg border border-slate-200 bg-white shadow-md sm:h-96"
                       loading="lazy"
                       decoding="async"
                       draggable="false"
@@ -421,6 +444,12 @@ export default function MedicalCombo6() {
                   <span className="font-display text-3xl font-extrabold text-brand-400" data-testid="combo6-main-price">{formatINR(comboPrice)}</span>
                 </div>
               </div>
+              {offerSecs != null && (
+                <div className="mt-5 flex flex-col items-center gap-2 border-t border-white/10 pt-4 sm:flex-row sm:justify-between" data-testid="combo6-pricing-countdown">
+                  <span className="c6-pulse inline-flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-brand-400"><Timer className="h-4 w-4" /> Offer price ends in</span>
+                  <CountdownBoxes secs={offerSecs} dark testId="combo6-pricing-countdown-boxes" />
+                </div>
+              )}
             </div>
             <div className="px-7 py-6">
               <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-slate-500">Optional add-ons — only with this combo</p>
