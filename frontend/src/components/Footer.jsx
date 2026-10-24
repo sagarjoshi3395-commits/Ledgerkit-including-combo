@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Logo } from "./Navbar";
 import { FOOTER_PRODUCTS, FOOTER_COMPANY, FOOTER_LEGAL } from "../lib/siteContent";
 import { api } from "../lib/api";
@@ -25,7 +25,10 @@ function FooterCol({ title, links }) {
   );
 }
 
+const MEDICAL_EMAIL_PATHS = ["/medical-6-combo", "/medical-reference-bundle"];
+
 export default function Footer() {
+  const { pathname } = useLocation();
   const { data: settings } = useQuery({
     queryKey: ["settings"],
     queryFn: async () => (await api.get("/settings")).data,
@@ -49,7 +52,7 @@ export default function Footer() {
             <h4 className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Support</h4>
             <ul className="mt-4 space-y-2.5 text-sm text-slate-400">
               <li data-testid="footer-support-email">
-                Email: {settings?.support_email || <span className="placeholder-token">[SUPPORT EMAIL]</span>}
+                Email: {MEDICAL_EMAIL_PATHS.includes(pathname) ? "Medicalmasterbook@gmail.com" : settings?.support_email || <span className="placeholder-token">[SUPPORT EMAIL]</span>}
               </li>
             </ul>
           </div>

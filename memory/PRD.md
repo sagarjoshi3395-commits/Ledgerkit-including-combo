@@ -244,3 +244,8 @@ See /app/memory/test_credentials.md.
 - Sticky "Buy Now" (bookkeeping) `checkoutNow` no longer bypasses — opens the email+mobile dialog, then Razorpay.
 - razorpay.js forwards phone → create-order body + Razorpay prefill.contact. Backend: RazorpayCreateIn.phone + Order.phone stored. Verified via curl (order created, phone accepted).
 - Bookkeeping hero: removed standalone big ₹290/₹999/Save% price block from top ("remove 290 text").
+
+## 2026-06 — Medical 6 Combo page refresh
+- Price 297→290 (seed + fallback); hero headline/sub/audience chips/checks; hero price + 6-cover row removed; hero CTA = Preview sample pages (scrolls to #samples)
+- Video samples replaced by flowing image rows (Medicine L, Disease R, Emergency L, Ayurvedic R; ECG+Lab behind "See more"), 5 pages/guide, ~15-40KB webp in /samples/combo-6/pages, non-clickable
+- Added Without vs With section, 3 static testimonials (placeholders), removed refund FAQ, Radiology add-on renamed Physiotherapy Guide, footer email Medicalmasterbook@gmail.com on medical pages

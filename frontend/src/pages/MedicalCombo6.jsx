@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, ShieldCheck, Download, Zap, BookOpen, Stethoscope, ArrowRight, Loader2, Mail, Timer, Smartphone, Lock } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Check, ShieldCheck, Download, Zap, BookOpen, Stethoscope, ArrowRight, Loader2, Mail, Timer, Smartphone, Lock, GraduationCap, Pill, HeartPulse, Eye, X, Star, ChevronDown } from "lucide-react";
 import { api, formatINR } from "@/lib/api";
 import { useOfferTimer } from "@/lib/offerTimer";
 import { toast } from "sonner";
@@ -11,16 +11,38 @@ import { SectionHeading } from "@/components/SectionHeading";
 import { Reveal } from "@/components/Reveal";
 
 const COMBO_SLUG = "medical-6-pdf-combo";
-const FALLBACK_PRICE = 297;
-const VIDEO_DIR = "/samples/combo-6/videos";
+const FALLBACK_PRICE = 290;
+const PAGE_DIR = "/samples/combo-6/pages";
+const pages = (k) => [1, 2, 3, 4, 5].map((n) => `${PAGE_DIR}/${k}-${n}.webp`);
 
 const GUIDES = [
-  { key: "disease", tab: "Disease", title: "Disease Reference Guide", cover: "/samples/combo-6/cover-disease.webp", video: `${VIDEO_DIR}/disease_reference_guide_page_flow_web.mp4`, color: "#2563EB", desc: "120+ common diseases: causes, symptoms, diagnosis, treatment overview.", points: ["120+ common diseases", "Causes & symptoms", "Diagnosis & treatment overview"], tags: ["120+ diseases", "Causes & symptoms", "Diagnosis", "Treatment overview"] },
-  { key: "medicine", tab: "Medicine", title: "Medicine Reference Guide", cover: "/samples/combo-6/cover-medicine.webp", video: `${VIDEO_DIR}/medicine_reference_guide_page_flow_web.mp4`, color: "#6D28D9", desc: "Common medicines: drug class, uses, side effects, key points.", points: ["Drug class & uses", "Side effects", "Key points at a glance"], tags: ["Drug classes", "Uses & dosage", "Side effects", "Important notes"] },
-  { key: "lab", tab: "Lab Report", title: "Lab Report Decode", pages: "86 pages", cover: "/samples/combo-6/cover-lab-report.webp", video: `${VIDEO_DIR}/lab_report_decode_page_flow_web.mp4`, color: "#1D4ED8", desc: "CBC, liver, kidney, thyroid, ABG and report patterns.", points: ["CBC, LFT, KFT, thyroid", "ABG interpretation", "Common report patterns"], tags: ["CBC, LFT & KFT", "Thyroid & ABG", "Report patterns", "Normal vs abnormal"] },
-  { key: "emergency", tab: "Emergency", title: "Emergency Medical Guide", pages: "73 pages", cover: "/samples/combo-6/cover-emergency.webp", video: `${VIDEO_DIR}/emergency_medical_guide_page_flow_web.mp4`, color: "#DC2626", desc: "ABCDE, CPR, shock, triage, drug quick reference.", points: ["ABCDE & CPR", "Shock & triage", "Emergency drug quick reference"], tags: ["ABCDE approach", "CPR steps", "Shock & triage", "Drug quick reference"] },
-  { key: "ecg", tab: "ECG", title: "ECG Reading Guide", pages: "59 pages", cover: "/samples/combo-6/cover-ecg.webp", video: `${VIDEO_DIR}/ecg_reading_guide_page_flow_web.mp4`, color: "#E11D48", desc: "ECG basics, rhythms, AV blocks, step-by-step approach.", points: ["ECG basics", "Rhythms & AV blocks", "Step-by-step approach"], tags: ["Rhythm strips", "AV blocks", "Step-by-step method", "Real examples"] },
-  { key: "ayurvedic", tab: "Ayurvedic", title: "Ayurvedic Medicine Guide", pages: "78 pages", cover: "/samples/combo-6/cover-ayurvedic.webp", video: `${VIDEO_DIR}/ayurvedic_medicine_guide_page_flow_web.mp4`, color: "#16A34A", desc: "Common Ayurvedic medicines and uses, English + Hindi.", points: ["Common Ayurvedic medicines", "Uses & dosage guidance", "English + Hindi"], tags: ["Common medicines", "Uses & benefits", "Dosage guidance", "English + Hindi"] },
+  { key: "disease", tab: "Disease", title: "Disease Reference Guide", cover: "/samples/combo-6/cover-disease.webp", color: "#2563EB", desc: "120+ common diseases: causes, symptoms, diagnosis, treatment overview.", points: ["120+ common diseases", "Causes & symptoms", "Diagnosis & treatment overview"], tags: ["120+ diseases", "Causes & symptoms", "Diagnosis", "Treatment overview"] },
+  { key: "medicine", tab: "Medicine", title: "Medicine Reference Guide", cover: "/samples/combo-6/cover-medicine.webp", color: "#6D28D9", desc: "Common medicines: drug class, uses, side effects, key points.", points: ["Drug class & uses", "Side effects", "Key points at a glance"], tags: ["Drug classes", "Uses & dosage", "Side effects", "Important notes"] },
+  { key: "lab", tab: "Lab Report", title: "Lab Report Decode", pages: "86 pages", cover: "/samples/combo-6/cover-lab-report.webp", color: "#1D4ED8", desc: "CBC, liver, kidney, thyroid, ABG and report patterns.", points: ["CBC, LFT, KFT, thyroid", "ABG interpretation", "Common report patterns"], tags: ["CBC, LFT & KFT", "Thyroid & ABG", "Report patterns", "Normal vs abnormal"] },
+  { key: "emergency", tab: "Emergency", title: "Emergency Medical Guide", pages: "73 pages", cover: "/samples/combo-6/cover-emergency.webp", color: "#DC2626", desc: "ABCDE, CPR, shock, triage, drug quick reference.", points: ["ABCDE & CPR", "Shock & triage", "Emergency drug quick reference"], tags: ["ABCDE approach", "CPR steps", "Shock & triage", "Drug quick reference"] },
+  { key: "ecg", tab: "ECG", title: "ECG Reading Guide", pages: "59 pages", cover: "/samples/combo-6/cover-ecg.webp", color: "#E11D48", desc: "ECG basics, rhythms, AV blocks, step-by-step approach.", points: ["ECG basics", "Rhythms & AV blocks", "Step-by-step approach"], tags: ["Rhythm strips", "AV blocks", "Step-by-step method", "Real examples"] },
+  { key: "ayurvedic", tab: "Ayurvedic", title: "Ayurvedic Medicine Guide", pages: "78 pages", cover: "/samples/combo-6/cover-ayurvedic.webp", color: "#16A34A", desc: "Common Ayurvedic medicines and uses, English + Hindi.", points: ["Common Ayurvedic medicines", "Uses & dosage guidance", "English + Hindi"], tags: ["Common medicines", "Uses & benefits", "Dosage guidance", "English + Hindi"] },
+];
+
+const SAMPLE_ORDER = ["medicine", "disease", "emergency", "ayurvedic", "ecg", "lab"];
+
+const HERO_AUDIENCE = [
+  { icon: GraduationCap, label: "Medical Students" },
+  { icon: Stethoscope, label: "Doctors" },
+  { icon: Pill, label: "Pharmacists" },
+  { icon: HeartPulse, label: "Nurses" },
+];
+
+const BEFORE_AFTER = [
+  { who: "Medical students", without: "Flipping through 1,000-page textbooks the night before an exam and still missing key points.", with: "Disease, ECG & lab summaries in visual tables — revise a full topic in 5 minutes." },
+  { who: "Doctors & interns", without: "Second-guessing ECG rhythms, lab values or emergency steps during busy rounds.", with: "Step-by-step ECG approach, normal vs abnormal lab ranges and ABCDE/CPR flowcharts on your phone." },
+  { who: "Pharmacists", without: "Searching multiple apps for drug class, uses and side effects while a patient waits.", with: "Drug class, uses, dosage & side effects on one page — plus Ayurvedic medicines in English + Hindi." },
+];
+
+const TESTIMONIALS = [
+  { name: "Priya Sharma", course: "MBBS, 3rd year · Jaipur", text: "The ECG guide finally made rhythms click for me. I keep it on my phone and go through it before ward postings — the step-by-step approach is very clear." },
+  { name: "Rahul Verma", course: "B.Pharm, final year · Lucknow", text: "During my pharmacy internship the medicine guide was the one I opened most. Drug class, uses and side effects on one page saves a lot of time." },
+  { name: "Sneha Patil", course: "B.Sc Nursing · Pune", text: "The emergency guide's ABCDE and CPR flowcharts are simple and easy to remember. For this price, getting all six guides is good value." },
 ];
 
 const AUDIENCE = ["MBBS", "BAMS", "BHMS", "Nursing", "B.Pharm / D.Pharm", "Paramedical", "Interns"];
@@ -42,14 +64,12 @@ const FAQS = [
   { q: "How will I get the PDFs?", a: "Right after payment your download page opens instantly, and the same PDF links are delivered to your email." },
   { q: "Who is it for?", a: "MBBS, BAMS, BHMS, nursing, pharmacy (B.Pharm / D.Pharm), paramedical students and interns." },
   { q: "Can I buy add-ons later?", a: "No — add-ons can only be purchased together with the 6 PDF combo on this page." },
-  { q: "Refund policy?", a: "These are digital products with instant access — no refunds once the PDFs are downloaded." },
   { q: "Can I use it for treatment decisions?", a: "No. These are educational quick-reference guides only. They do not replace textbooks, clinical training or a qualified doctor." },
 ];
 
 export default function MedicalCombo6() {
   const [combo, setCombo] = useState(null);
   const [addOns, setAddOns] = useState([]);
-  const [reviews, setReviews] = useState([]);
   const [selected, setSelected] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -60,7 +80,6 @@ export default function MedicalCombo6() {
     document.title = "Ledgerkit 6 PDF Medical Combo — Instant Download";
     api.get(`/products/${COMBO_SLUG}`).then((r) => setCombo(r.data)).catch(() => {});
     api.get("/combo-6/add-ons").then((r) => setAddOns(r.data)).catch(() => {});
-    api.get("/testimonials", { params: { product_slug: COMBO_SLUG } }).then((r) => setReviews(r.data || [])).catch(() => {});
   }, []);
 
   const comboPrice = combo?.editions?.digital?.price ?? combo?.sale_price ?? FALLBACK_PRICE;
@@ -76,36 +95,9 @@ export default function MedicalCombo6() {
   const openBuy = () => setDialogOpen(true);
   const scrollToPricing = () => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
 
-  const [activeGuide, setActiveGuide] = useState("disease");
-  const [nearSamples, setNearSamples] = useState(false);
-  const samplesRef = useRef(null);
-  const videoRef = useRef(null);
-
-  useEffect(() => {
-    const el = samplesRef.current;
-    if (!el) return undefined;
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setNearSamples(true);
-          obs.disconnect();
-        }
-      },
-      { rootMargin: "400px" },
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const v = videoRef.current;
-    if (v) {
-      v.currentTime = 0;
-      v.play().catch(() => {});
-    }
-  }, [activeGuide, nearSamples]);
-
-  const activeGuideData = GUIDES.find((g) => g.key === activeGuide) || GUIDES[0];
+  const [showAllSamples, setShowAllSamples] = useState(false);
+  const scrollToSamples = () => document.getElementById("samples")?.scrollIntoView({ behavior: "smooth" });
+  const sampleGuides = SAMPLE_ORDER.slice(0, showAllSamples ? 6 : 4).map((k) => GUIDES.find((g) => g.key === k));
 
   const pay = async ({ email, phone } = {}) => {
     setBusy(true);
@@ -148,6 +140,13 @@ export default function MedicalCombo6() {
         .c6-glow{animation:c6glowY 2s ease-out infinite}
         @keyframes c6glowV{0%,100%{box-shadow:0 0 0 0 rgba(46,26,200,.4)}50%{box-shadow:0 0 0 10px rgba(46,26,200,0)}}
         .c6-glow-violet{animation:c6glowV 2s ease-out infinite}
+        @keyframes c6flowL{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+        @keyframes c6flowR{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+        .c6-row{display:flex;width:max-content;gap:1rem;will-change:transform}
+        .c6-left{animation:c6flowL 38s linear infinite}
+        .c6-right{animation:c6flowR 38s linear infinite}
+        .c6-mask{overflow:hidden;-webkit-mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent)}
+        @media (prefers-reduced-motion:reduce){.c6-left,.c6-right{animation:none}}
       `}</style>
       {/* TOP BAR */}
       <div className="bg-brand-400 px-4 py-2.5 text-center" data-testid="combo6-topbar">
@@ -162,52 +161,51 @@ export default function MedicalCombo6() {
       </div>
 
       {/* HERO */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-brand-50 via-white to-white px-4 pb-12 pt-10 sm:px-6 sm:pt-14 lg:px-8" data-testid="combo6-hero">
+      <section className="relative overflow-hidden bg-gradient-to-b from-brand-50 via-white to-white px-4 pb-14 pt-10 sm:px-6 sm:pt-14 lg:px-8" data-testid="combo6-hero">
         <div className="pointer-events-none absolute -left-28 top-8 h-72 w-72 rounded-full bg-brand-200/50 blur-3xl" />
         <div className="pointer-events-none absolute -right-28 bottom-0 h-80 w-80 rounded-full bg-brand-400/25 blur-3xl" />
         <div className="relative mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[1.05fr_1fr] lg:gap-14">
           <Reveal>
-            <span className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white px-3.5 py-1.5 font-mono text-[10px] font-bold uppercase tracking-widest text-brand-700 shadow-subtle">
-              Launch offer · 6 guides · one pack
+            <span className="inline-flex items-center gap-2 rounded-full bg-ember px-3.5 py-1.5 font-mono text-[10px] font-bold uppercase tracking-widest text-white shadow-subtle" data-testid="combo6-hero-badge">
+              6 medical guides · 1 powerful combo
             </span>
-            <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.08] tracking-tight text-ink sm:text-5xl">
-              Six medical guides. <span className="text-brand-600">One instant download.</span>
+            <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.08] tracking-tight text-ink sm:text-5xl" data-testid="combo6-hero-title">
+              Essential Medical Guides — <span className="text-brand-600">Medicines, Diseases, ECG &amp; Emergency Care</span>
             </h1>
-            <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-600">
-              Diseases, medicines, lab reports, emergencies, ECG &amp; Ayurveda — visual diagrams and quick-reference tables, made for revision on your phone.
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-600" data-testid="combo6-hero-subtitle">
+              Stop digging through heavy textbooks. Find drug uses, disease symptoms, ECG rhythms and emergency steps in seconds — clear tables and flowcharts you can revise anywhere, plus Ayurvedic medicines and lab report decoding.
             </p>
-            <div className="mt-6 flex flex-wrap gap-2">
-              {[
-                { icon: BookOpen, label: "6 complete guides" },
-                { icon: Zap, label: "Visual quick-reference" },
-                { icon: Download, label: "Instant PDF" },
-              ].map((c) => (
-                <span key={c.label} className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-subtle">
-                  <c.icon className="h-3.5 w-3.5 text-brand-600" /> {c.label}
+            <div className="mt-6 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+              {HERO_AUDIENCE.map((c) => (
+                <span key={c.label} className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white px-3.5 py-2 text-xs font-bold text-ink shadow-subtle" data-testid={`combo6-hero-for-${c.label.toLowerCase().replace(/\s+/g, "-")}`}>
+                  <c.icon className="h-4 w-4 shrink-0 text-brand-600" /> For {c.label}
                 </span>
               ))}
             </div>
-            <div className="mt-7 flex items-end gap-3">
-              <span className="font-display text-4xl font-extrabold text-ink" data-testid="combo6-hero-price">{formatINR(comboPrice)}</span>
-              <span className="pb-1 text-lg text-slate-400 line-through">₹1,699</span>
-              <span className="mb-1 rounded-full bg-emerald-100 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-emerald-700">Save 82%</span>
-            </div>
-            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <ul className="mt-6 space-y-2">
+              {["Instant PDF download", "Easy visuals, tables & flowcharts", "Read on phone, tablet or laptop"].map((t) => (
+                <li key={t} className="flex items-center gap-2.5 text-sm font-semibold text-slate-700">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500"><Check className="h-3.5 w-3.5 text-white" /></span>
+                  {t}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
               <button
-                onClick={openBuy}
-                data-testid="combo6-hero-buy-button"
+                onClick={scrollToSamples}
+                data-testid="combo6-hero-preview-button"
                 className="c6-glow inline-flex items-center justify-center gap-2 rounded-lg bg-brand-400 px-7 py-4 font-display text-base font-extrabold text-ink-surface transition-colors duration-200 hover:bg-[#ffe14d]"
               >
-                Download all 6 — {formatINR(total)} <ArrowRight className="h-4 w-4" />
+                <Eye className="h-4 w-4" /> Preview sample pages <ChevronDown className="h-4 w-4" />
               </button>
               {offerClock && (
                 <span className="inline-flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-wider text-slate-500" data-testid="combo6-hero-timer">
-                  <Timer className="h-3.5 w-3.5 text-ember" /> Offer ends in <span className="tabular-nums text-ember">{offerClock}</span>
+                  <Timer className="h-3.5 w-3.5 text-ember" /> Launch offer ends in <span className="tabular-nums text-ember">{offerClock}</span>
                 </span>
               )}
             </div>
             <p className="mt-3 flex items-center gap-1.5 text-xs text-slate-500">
-              <ShieldCheck className="h-3.5 w-3.5 text-brand-600" /> Instant PDF access · Secure payment
+              <ShieldCheck className="h-3.5 w-3.5 text-brand-600" /> Secure payment · Instant access · Colourful PDF
             </p>
           </Reveal>
           <Reveal className="relative">
@@ -215,7 +213,7 @@ export default function MedicalCombo6() {
               <div className="absolute -inset-4 rounded-[2.2rem] bg-gradient-to-tr from-brand-600/15 via-brand-400/25 to-transparent blur-2xl" />
               <img
                 src="/samples/combo-6/bundle-6-books.webp"
-                alt="Ledgerkit 6 medical PDF guides combo"
+                alt="Ledgerkit 6 essential medical guides combo"
                 className="relative w-full rounded-3xl border border-slate-200 bg-white shadow-2xl"
                 width="1100"
                 height="825"
@@ -224,9 +222,9 @@ export default function MedicalCombo6() {
                 decoding="async"
                 data-testid="combo6-hero-image"
               />
-              <span className="c6-float absolute -right-3 -top-3 flex h-20 w-20 rotate-6 flex-col items-center justify-center rounded-full bg-brand-600 text-center font-display font-extrabold leading-tight text-white shadow-lg" data-testid="combo6-price-badge">
-                <span className="text-[10px] line-through opacity-70">₹1,699</span>
-                <span className="text-lg">{formatINR(comboPrice)}</span>
+              <span className="c6-float absolute -right-3 -top-3 flex h-20 w-20 rotate-6 flex-col items-center justify-center rounded-full bg-brand-600 text-center font-display font-extrabold leading-tight text-white shadow-lg" data-testid="combo6-combo-badge">
+                <span className="text-xl">6 in 1</span>
+                <span className="text-[10px] uppercase tracking-wider">Combo</span>
               </span>
               <span className="c6-chipfloat absolute -left-3 top-10 hidden items-center gap-2 rounded-xl border border-slate-200 bg-white/95 px-3.5 py-2 text-xs font-bold text-ink shadow-xl backdrop-blur sm:flex">
                 <Download className="h-3.5 w-3.5 text-brand-600" /> Instant PDF
@@ -237,30 +235,6 @@ export default function MedicalCombo6() {
             </div>
           </Reveal>
         </div>
-        <Reveal className="relative mx-auto mt-12 max-w-6xl">
-          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6" data-testid="combo6-hero-covers">
-            {GUIDES.map((g) => (
-              <button
-                key={g.key}
-                type="button"
-                onClick={() => {
-                  setActiveGuide(g.key);
-                  samplesRef.current?.scrollIntoView({ behavior: "smooth" });
-                }}
-                className="group text-center"
-                data-testid={`combo6-hero-cover-${g.key}`}
-              >
-                <img
-                  src={g.cover}
-                  alt={g.title}
-                  className="mx-auto h-24 w-auto rounded-lg border border-slate-200 bg-white object-contain shadow-subtle transition-transform duration-200 group-hover:-translate-y-1.5"
-                  loading="lazy"
-                />
-                <p className="mt-1.5 truncate text-[10px] font-semibold text-slate-600 group-hover:text-brand-700">{g.tab}</p>
-              </button>
-            ))}
-          </div>
-        </Reveal>
       </section>
 
       {/* TRUST BAND */}
@@ -340,78 +314,77 @@ export default function MedicalCombo6() {
         </div>
       </section>
 
-      {/* SAMPLE PAGES — video previews in a phone mockup */}
-      <section ref={samplesRef} className="px-4 py-16 sm:px-6 lg:px-8" data-testid="combo6-samples">
-        <style>{`@keyframes c6fade{from{opacity:0}to{opacity:1}}.c6-fade{animation:c6fade .3s ease}`}</style>
-        <div className="mx-auto max-w-5xl">
-          <SectionHeading eyebrow="Sample pages" title="Look inside – guide by guide" description="Tap a guide to see its real pages." testId="combo6-samples" />
-          <div className="mt-8 grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:justify-center" data-testid="combo6-video-tabs">
-            {GUIDES.map((g) => {
-              const on = g.key === activeGuide;
-              return (
-                <button
-                  key={g.key}
-                  type="button"
-                  onClick={() => setActiveGuide(g.key)}
-                  aria-pressed={on}
-                  data-testid={`combo6-vtab-${g.key}`}
-                  className={`flex min-w-0 items-center justify-center gap-1.5 rounded-xl border px-2.5 py-2.5 text-[11px] font-bold transition-colors duration-200 sm:rounded-full sm:px-3.5 sm:text-sm ${on ? "border-transparent text-white" : "border-slate-300 bg-white text-slate-600 hover:border-slate-400"}`}
-                  style={on ? { backgroundColor: g.color } : undefined}
-                >
-                  <img src={g.cover} alt="" className="h-6 w-6 shrink-0 rounded-full object-cover sm:h-7 sm:w-7" loading="lazy" />
-                  <span className="truncate">{g.tab}</span>
-                </button>
-              );
-            })}
-          </div>
-          <div className="mt-8 grid items-center gap-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-card-hover sm:p-10 lg:grid-cols-[auto_1fr]" data-testid="combo6-video-panel">
-            <div className="mx-auto w-[230px] sm:w-[260px]">
-              <div className="rounded-[2.6rem] bg-ink-surface p-2.5 shadow-2xl">
-                <div className="relative overflow-hidden rounded-[2rem] bg-black" style={{ aspectRatio: "9/16" }}>
-                  <div className="absolute left-1/2 top-2 z-10 h-4 w-20 -translate-x-1/2 rounded-full bg-ink-surface" />
-                  {nearSamples ? (
-                    <video
-                      key={activeGuideData.key}
-                      ref={videoRef}
-                      className="c6-fade h-full w-full object-cover"
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      preload="metadata"
-                      poster={activeGuideData.cover}
-                      src={activeGuideData.video}
-                      data-testid="combo6-video-player"
+      {/* SAMPLE PAGES — flowing rows, alternate directions, non-clickable */}
+      <section id="samples" className="scroll-mt-20 bg-slate-50 py-16" data-testid="combo6-samples">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6">
+          <SectionHeading eyebrow="Sample pages" title="Look inside — real pages from every guide" description="Exactly how the guides look inside: colourful, visual and easy to revise." testId="combo6-samples" />
+        </div>
+        <div className="mt-10 space-y-10">
+          {sampleGuides.map((g, i) => (
+            <div key={g.key} data-testid={`combo6-flow-${g.key}`}>
+              <div className="mb-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 text-center">
+                <span className="rounded-full px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-white" style={{ backgroundColor: g.color }}>{g.title}</span>
+                <span className="text-xs font-semibold text-slate-500">{g.tags.join(" · ")}</span>
+              </div>
+              <div className="c6-mask py-1" style={{ pointerEvents: "none" }}>
+                <div className={`c6-row ${i % 2 === 0 ? "c6-left" : "c6-right"}`}>
+                  {[...pages(g.key), ...pages(g.key)].map((src, j) => (
+                    <img
+                      key={`${src}-${j}`}
+                      src={src}
+                      alt={`${g.title} sample page`}
+                      width="360"
+                      height="640"
+                      className="h-64 w-36 shrink-0 select-none rounded-xl border border-slate-200 bg-white object-cover object-top shadow-subtle sm:h-80 sm:w-[180px]"
+                      loading="lazy"
+                      decoding="async"
+                      draggable="false"
                     />
-                  ) : (
-                    <img src={activeGuideData.cover} alt={activeGuideData.title} className="h-full w-full object-cover" loading="lazy" />
-                  )}
+                  ))}
                 </div>
               </div>
             </div>
-            <div className="text-center lg:text-left">
-              <span className="inline-block rounded-full px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-white" style={{ backgroundColor: activeGuideData.color }}>
-                {activeGuideData.pages || "Quick-reference"}
-              </span>
-              <h3 className="mt-3 font-display text-2xl font-extrabold tracking-tight text-ink" data-testid="combo6-video-title">
-                {activeGuideData.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600">{activeGuideData.desc}</p>
-              <div className="mt-4 flex flex-wrap justify-center gap-2 lg:justify-start">
-                {activeGuideData.tags.map((t) => (
-                  <span key={t} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700">
-                    {t}
-                  </span>
-                ))}
-              </div>
-              <button
-                onClick={scrollToPricing}
-                data-testid="combo6-sample-cta"
-                className="mt-6 inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-3.5 font-display text-sm font-extrabold text-white transition-colors duration-200 hover:bg-brand-700"
-              >
-                Get this + 5 more guides – {formatINR(comboPrice)} <ArrowRight className="h-4 w-4" />
-              </button>
-            </div>
+          ))}
+        </div>
+        <div className="mt-10 flex flex-col items-center gap-3 px-4">
+          {!showAllSamples && (
+            <button
+              type="button"
+              onClick={() => setShowAllSamples(true)}
+              data-testid="combo6-show-more-samples"
+              className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-bold text-ink transition-colors duration-200 hover:border-brand-600 hover:text-brand-700"
+            >
+              See ECG &amp; Lab Report pages <ChevronDown className="h-4 w-4" />
+            </button>
+          )}
+          <button
+            onClick={scrollToPricing}
+            data-testid="combo6-sample-cta"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-3.5 font-display text-sm font-extrabold text-white transition-colors duration-200 hover:bg-brand-700"
+          >
+            Get all 6 guides – {formatINR(comboPrice)} <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
+      </section>
+
+      {/* WITHOUT vs WITH */}
+      <section className="px-4 py-16 sm:px-6 lg:px-8" data-testid="combo6-compare">
+        <div className="mx-auto max-w-6xl">
+          <SectionHeading eyebrow="The difference" title="Without the combo vs with the combo" description="The same daily problems — solved in seconds instead of hours." testId="combo6-compare" />
+          <div className="mt-12 grid gap-6 lg:grid-cols-3">
+            {BEFORE_AFTER.map((b) => (
+              <Reveal key={b.who} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-subtle" data-testid={`combo6-compare-${b.who.split(" ")[0].toLowerCase()}`}>
+                <p className="bg-ink-surface px-6 py-3 font-display text-sm font-extrabold text-white">{b.who}</p>
+                <div className="flex gap-3 border-b border-dashed border-slate-200 bg-rose-50/60 px-6 py-5">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-rose-500"><X className="h-3.5 w-3.5 text-white" /></span>
+                  <p className="text-sm leading-relaxed text-slate-700"><span className="font-bold text-rose-600">Without: </span>{b.without}</p>
+                </div>
+                <div className="flex gap-3 bg-emerald-50/60 px-6 py-5">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500"><Check className="h-3.5 w-3.5 text-white" /></span>
+                  <p className="text-sm leading-relaxed text-slate-700"><span className="font-bold text-emerald-700">With the combo: </span>{b.with}</p>
+                </div>
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
@@ -501,23 +474,29 @@ export default function MedicalCombo6() {
         </div>
       </section>
 
-      {/* REVIEWS — only rendered when real buyer reviews exist */}
-      {reviews.length > 0 && (
-        <section className="bg-slate-50 px-4 py-16 sm:px-6 lg:px-8" data-testid="combo6-reviews">
-          <div className="mx-auto max-w-6xl">
-            <SectionHeading eyebrow="Reviews" title="What students say" testId="combo6-reviews" />
-            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {reviews.map((r, i) => (
-                <div key={i} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-subtle">
-                  <p className="text-sm leading-relaxed text-slate-700">"{r.text || r.review}"</p>
-                  <p className="mt-4 text-sm font-bold text-ink">{r.name}</p>
-                  {r.role && <p className="text-xs text-slate-500">{r.role}</p>}
+      {/* TESTIMONIALS */}
+      <section className="bg-slate-50 px-4 py-16 sm:px-6 lg:px-8" data-testid="combo6-reviews">
+        <div className="mx-auto max-w-6xl">
+          <SectionHeading eyebrow="Reviews" title="What readers say" testId="combo6-reviews" />
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {TESTIMONIALS.map((r) => (
+              <Reveal key={r.name} className="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-subtle" data-testid={`combo6-review-${r.name.split(" ")[0].toLowerCase()}`}>
+                <div className="flex gap-0.5">
+                  {[0, 1, 2, 3, 4].map((n) => <Star key={n} className="h-4 w-4 fill-amber-400 text-amber-400" />)}
                 </div>
-              ))}
-            </div>
+                <p className="mt-3 flex-1 text-sm leading-relaxed text-slate-700">"{r.text}"</p>
+                <div className="mt-5 flex items-center gap-3">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 font-display text-sm font-extrabold text-brand-700">{r.name[0]}</span>
+                  <div>
+                    <p className="text-sm font-bold text-ink">{r.name}</p>
+                    <p className="text-xs text-slate-500">{r.course}</p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* FAQ */}
       <section className="px-4 py-16 sm:px-6 lg:px-8" data-testid="combo6-faq">

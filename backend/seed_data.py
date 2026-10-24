@@ -781,7 +781,7 @@ MEDICAL_6_COMBO_PRODUCT = {
     "cta_text": "Download all 6",
     "currency": "INR",
     "regular_price": 1699,
-    "sale_price": 297,
+    "sale_price": 290,
     "featured": True,
     "is_new": True,
     "bestseller": False,
@@ -822,14 +822,13 @@ MEDICAL_6_COMBO_PRODUCT = {
         {"q": "How will I get the PDFs?", "a": "Right after payment your download page opens instantly and the PDF links are delivered to your email."},
         {"q": "Who is it for?", "a": "MBBS, BAMS, BHMS, nursing, pharmacy (B.Pharm / D.Pharm), paramedical students and interns."},
         {"q": "Can I buy add-ons later?", "a": "No — add-ons can only be purchased together with the 6 PDF combo on this page."},
-        {"q": "Refund policy?", "a": "These are digital products with instant access — no refunds once the PDFs are downloaded."},
         {"q": "Can I use it for treatment decisions?", "a": "No. These are educational quick-reference guides only — they do not replace textbooks, clinical training or a qualified doctor."},
     ],
     "editions": {
         "digital": {
             "label": "6 PDF Combo",
             "badge": "Launch Offer",
-            "price": 297,
+            "price": 290,
             "cta": "Download all 6",
             "note": "One-time payment • Instant PDF access",
             "checkout_url": "",
@@ -845,7 +844,6 @@ MEDICAL_6_COMBO_PRODUCT = {
 
 _COMBO6_COVERS = {
     "ct-mri-xray-guide": "/samples/combo-6/cover-ct-scan.webp",
-    "radiology-guide": "/samples/combo-6/cover-radiology.webp",
 }
 
 
@@ -864,9 +862,9 @@ COMBO6_ADD_ON_PRODUCTS = [
         "An imaging quick-reference covering CT scans, MRI and X-Rays — what each modality shows, common findings and how reports are structured. Educational reference only. PDF file pending upload.",
     ),
     _combo6_add_on(
-        "radiology-guide", "Radiology Guide",
-        "Radiology essentials for students — modalities, positioning basics and reading common studies.",
-        "A radiology quick-reference for students covering imaging modalities, basic positioning and how to approach common studies. Educational reference only. PDF file pending upload.",
+        "radiology-guide", "Physiotherapy Guide",
+        "Physiotherapy essentials — common conditions, exercises, rehab basics and patient guidance.",
+        "A physiotherapy quick-reference covering common musculoskeletal conditions, exercise protocols, rehabilitation basics and patient guidance. Educational reference only. PDF file pending upload.",
     ),
 ]
 
