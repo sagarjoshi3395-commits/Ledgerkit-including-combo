@@ -159,11 +159,13 @@ def _fmt_inr(amount) -> str:
         return ""
 
 
-def build_delivery_email(*, order_id: str, items: list, amount, support_email: str | None):
+def build_delivery_email(*, order_id: str, items: list, amount, support_email: str | None, product_slugs: list | None = None):
     """Return (subject, html) for the product-delivery email.
 
     items: [{title, download_url}]  — download_url is the owner-configured https
     link to the actual product file; when missing we tell the buyer it is on its way.
+    product_slugs: list of slugs present in the order; used to append product-specific
+    usage instructions (e.g. the bookkeeping spreadsheet access + "make editable" steps).
     Only https links to real product files are emitted (G3).
     """
     subject = f"Your {EMAIL_FROM_NAME} download is ready"
@@ -200,7 +202,41 @@ def build_delivery_email(*, order_id: str, items: list, amount, support_email: s
         support_html = (
             f'<p style="font:400 13px Arial,sans-serif;color:#6b7280;margin:20px 0 0;">'
             f'Need help? Just reply to this email or write to '
-            f'<a href="mailto:{escape(support_email)}" style="color:#2E1AC8;">{escape(support_email)}</a>.</p>'
+            f'<a href="mailto:{escape(support_email)}" style="color:#2E1AC8;">{escape(support_email)}</a> '
+            f'(support hours 10am to 7pm).</p>'
+        )
+
+    bookkeeping_html = ""
+    if product_slugs and "business-bookkeeping-system" in product_slugs:
+        bookkeeping_html = (
+            '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" '
+            'style="margin-top:22px;background:#F7F6FF;border-radius:12px;border:1px solid #E6E2FF;">'
+            '<tr><td style="padding:18px 20px;">'
+            '<div style="font:800 14px Arial,sans-serif;color:#0B1437;margin:0 0 10px;">'
+            'Your Business Bookkeeping Spreadsheets &amp; Templates</div>'
+            '<div style="font:400 13px Arial,sans-serif;color:#374151;margin:0 0 8px;">'
+            'Your access guide PDF above contains clickable links to the product. '
+            'For your convenience, your spreadsheet &amp; template links are also included here:</div>'
+            '<ul style="margin:8px 0 10px;padding-left:20px;font:400 13px Arial,sans-serif;color:#0B1437;">'
+            '<li style="margin:4px 0;"><a href="https://docs.google.com/spreadsheets/d/1_ejFeNTJVK7DBOh7cErqHbCw56TC-0_D/edit?usp=sharing&amp;ouid=109312162411858112391&amp;rtpof=true&amp;sd=true" '
+            'style="color:#2E1AC8;text-decoration:none;font-weight:700;">Business Bookkeeping Spreadsheet</a></li>'
+            '<li style="margin:4px 0;"><a href="https://docs.google.com/spreadsheets/d/1fGpv8aSp3RTQe_LVU9BaLuVQy9pTgp5IJccPWkiWhBY/edit?usp=sharing" '
+            'style="color:#2E1AC8;text-decoration:none;font-weight:700;">Habit Tracker</a></li>'
+            '<li style="margin:4px 0;"><a href="https://drive.google.com/drive/folders/18E3cDIzHwJZ41MLJbudSFm5n1FWH42it?usp=sharing" '
+            'style="color:#2E1AC8;text-decoration:none;font-weight:700;">500+ Excel Templates</a></li>'
+            '</ul>'
+            '<div style="font:700 13px Arial,sans-serif;color:#0B1437;margin:14px 0 4px;">How to use these files</div>'
+            '<div style="font:400 13px Arial,sans-serif;color:#374151;margin:0 0 8px;">'
+            'For the best experience, open these in a PC or laptop. If you are using a phone, install the '
+            '<strong>Google Sheets</strong> or <strong>Microsoft Excel</strong> app first.'
+            '</div>'
+            '<div style="font:700 13px Arial,sans-serif;color:#0B1437;margin:12px 0 4px;">'
+            'Important: how to make a template editable</div>'
+            '<div style="font:400 13px Arial,sans-serif;color:#374151;margin:0;">'
+            'Open the file &rarr; click <strong>File</strong> &rarr; select <strong>Make a copy</strong>. '
+            'Your personal editable version will be ready to use.'
+            '</div>'
+            '</td></tr></table>'
         )
 
     html = (
@@ -222,6 +258,7 @@ def build_delivery_email(*, order_id: str, items: list, amount, support_email: s
         f'{amount_html}'
         f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" '
         f'style="margin-top:20px;">{items_html}</table>'
+        f'{bookkeeping_html}'
         f'{support_html}'
         f'<p style="font:400 12px Arial,sans-serif;color:#9aa1ad;margin:24px 0 0;">'
         f'Sent by {escape(EMAIL_FROM_NAME)}. For your security, we will never ask for your '

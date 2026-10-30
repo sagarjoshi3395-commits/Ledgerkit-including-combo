@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { CheckCircle2, Clock, Mail, ArrowRight, Download } from "lucide-react";
 import { api, formatINR } from "../lib/api";
 import { trackEvent, getStoredUtms } from "../lib/analytics";
+import { initMetaPixel, pixelIdForProductSlug } from "../lib/metaPixel";
 import Seo from "../components/Seo";
 import { Skeleton } from "../components/ui/skeleton";
 
@@ -36,11 +37,19 @@ export default function OrderSuccess() {
 
   const paid = order?.status === "paid" || order?.status === "delivered";
   const downloads = order?.downloads || [];
+  const isBookkeeping = order?.product_slug === "business-bookkeeping-system";
+
+  // Load the pixel that owns the purchased product's page BEFORE firing Purchase,
+  // so revenue attributes to the correct ad account (never the other one).
+  const pixelId = pixelIdForProductSlug(order?.product_slug);
+  useEffect(() => {
+    if (pixelId) initMetaPixel(pixelId);
+  }, [pixelId]);
 
   // Fire the Meta Pixel Purchase event exactly once when a paid order loads.
   const purchaseFired = useRef(false);
   useEffect(() => {
-    if (paid && order && !purchaseFired.current) {
+    if (paid && order && pixelId && !purchaseFired.current) {
       purchaseFired.current = true;
       const key = `purchase_tracked_${order.order_id}`;
       try {
@@ -94,6 +103,21 @@ export default function OrderSuccess() {
                   <p className="text-center font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
                     Your {downloads.length > 1 ? `${downloads.length} downloads` : "download"} — ready now
                   </p>
+                  {isBookkeeping && (
+                    <div
+                      data-testid="bookkeeping-pdf-note"
+                      className="rounded-xl border border-brand-200 bg-brand-50 p-4 text-sm leading-relaxed text-ink"
+                    >
+                      <p className="font-semibold">Your Business Bookkeeping Template Access Guide is ready.</p>
+                      <p className="mt-1 text-slate-700">
+                        The clickable link to your product (spreadsheets &amp; templates) is <strong>inside the PDF</strong>.
+                        Open the PDF after downloading and tap the links to open your files.
+                      </p>
+                      <p className="mt-2 text-xs text-slate-600">
+                        A copy of the PDF link and all spreadsheet links has also been sent to your email.
+                      </p>
+                    </div>
+                  )}
                   {downloads.map((d) => (
                     <div
                       key={d.slug}

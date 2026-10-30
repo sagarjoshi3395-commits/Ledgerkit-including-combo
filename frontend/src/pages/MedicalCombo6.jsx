@@ -9,6 +9,7 @@ import BuyerEmailDialog from "@/components/BuyerEmailDialog";
 import FaqAccordion from "@/components/FaqAccordion";
 import { SectionHeading } from "@/components/SectionHeading";
 import { Reveal } from "@/components/Reveal";
+import { useMetaPixel } from "@/lib/metaPixel";
 
 const COMBO_SLUG = "medical-6-pdf-combo";
 const FALLBACK_PRICE = 290;
@@ -85,6 +86,7 @@ const FAQS = [
 ];
 
 export default function MedicalCombo6() {
+  useMetaPixel("3470309736541129");
   const [combo, setCombo] = useState(null);
   const [addOns, setAddOns] = useState([]);
   const [selected, setSelected] = useState([]);

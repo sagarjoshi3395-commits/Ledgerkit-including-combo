@@ -21,7 +21,7 @@ export const LEGAL_PAGES = {
       { heading: "13. Limitation of Liability", body: ["To the maximum extent permitted by law, LedgerKit shall not be liable for indirect, incidental or consequential damages arising from the use of our products or website."] },
       { heading: "14. Changes to Products & Content", body: ["We may update, improve or discontinue products and content at any time. Material updates to purchased digital products may be provided at our discretion."] },
       { heading: "15. Governing Law", body: ["These terms are governed by the laws of India. Jurisdiction: [INSERT JURISDICTION / COURTS]."] },
-      { heading: "16. Contact", body: ["For any questions about these terms, contact us at ledgerkitsupport@gmail.com."] },
+      { heading: "16. Contact", body: ["For any questions about these terms, contact us at medicalmasterbook@gmail.com."] },
     ],
   },
   "privacy-policy": {
@@ -36,10 +36,10 @@ export const LEGAL_PAGES = {
       { heading: "5. Data Sharing", body: ["We do not sell your personal information. Information may be shared with service providers strictly as needed — for example payment processors and email delivery services."] },
       { heading: "6. Data Retention", body: ["We retain order and contact records for as long as needed to provide support, meet legal obligations and maintain business records: [INSERT RETENTION PERIOD]."] },
       { heading: "7. Security", body: ["We take reasonable measures to protect your information. No method of transmission or storage is completely secure, and we encourage you to contact us immediately if you suspect any issue."] },
-      { heading: "8. Your Rights", body: ["You may request access, correction or deletion of your personal information by contacting us at ledgerkitsupport@gmail.com."] },
+      { heading: "8. Your Rights", body: ["You may request access, correction or deletion of your personal information by contacting us at medicalmasterbook@gmail.com."] },
       { heading: "9. Third-Party Services", body: ["Our website links to or integrates third-party services (payment providers, analytics, advertising platforms). Their own privacy policies apply to their processing of your data."] },
       { heading: "10. Changes to This Policy", body: ["We may update this policy from time to time. The latest version will always be available on this page."] },
-      { heading: "11. Contact", body: ["Questions about privacy: ledgerkitsupport@gmail.com."] },
+      { heading: "11. Contact", body: ["Questions about privacy: medicalmasterbook@gmail.com."] },
     ],
   },
   "refund-cancellation-policy": {
@@ -50,7 +50,7 @@ export const LEGAL_PAGES = {
       { heading: "1. Digital Products", body: ["Refund eligibility for downloadable digital products: [INSERT POLICY].", "Refund request period: [INSERT PERIOD].", "Because digital products are delivered instantly, please describe the issue in detail when requesting support so we can resolve it quickly."] },
       { heading: "2. Duplicate or Failed Payments", body: ["If you were charged twice for the same order, or charged without receiving access, contact us with your payment/order ID. Verified duplicate payments are refunded to the original payment method. Failed payments where money was debited are typically reversed automatically by your bank or the payment provider within [INSERT TIMELINE]."] },
       { heading: "3. Refund Processing", body: ["Approved refunds are processed to the original payment method. Processing timeline: [INSERT TIMELINE]."] },
-      { heading: "4. How to Request", body: ["Contact us at ledgerkitsupport@gmail.com with your name, order/payment ID and the reason for your request."] },
+      { heading: "4. How to Request", body: ["Contact us at medicalmasterbook@gmail.com with your name, order/payment ID and the reason for your request."] },
     ],
   },
   "digital-delivery-policy": {
@@ -62,7 +62,7 @@ export const LEGAL_PAGES = {
       { heading: "2. When Delivery Starts", body: ["Delivery begins after successful payment confirmation from our payment provider."] },
       { heading: "3. How Delivery Happens", body: ["Depending on the configured delivery method, access may be provided via a download page, account access, email, SuperProfile or another configured platform."] },
       { heading: "4. Accurate Contact Information", body: ["Please provide an accurate email address and phone number at checkout. Access instructions are sent to the details you provide."] },
-      { heading: "5. If You Do Not Receive Access", body: ["Check your spam/promotions folder first. If you still cannot find your access, contact us with your order/payment ID and we will resolve it: ledgerkitsupport@gmail.com."] },
+      { heading: "5. If You Do Not Receive Access", body: ["Check your spam/promotions folder first. If you still cannot find your access, contact us with your order/payment ID and we will resolve it: medicalmasterbook@gmail.com."] },
     ],
   },
   "disclaimer": {

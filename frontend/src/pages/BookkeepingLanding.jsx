@@ -16,8 +16,10 @@ import {
   StickyCta,
 } from "../components/bookkeeping/sections";
 import "../components/bookkeeping/bbs-landing.css";
+import { useMetaPixel } from "../lib/metaPixel";
 
 export default function BookkeepingLanding() {
+  useMetaPixel("1605079064338578");
   return (
     <div className="bbs-page min-h-screen">
       <Seo

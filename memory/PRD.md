@@ -252,3 +252,26 @@ See /app/memory/test_credentials.md.
 - Countdown: looping 15-min per-visitor timer (useOfferTimer loop=true, key lk_c6_deadline), HH:MM:SS boxes in hero + pricing card; price never changes on expiry
 - Sample pages rebuilt as clean single full pages (stitched from page-flow videos via /app/scripts/stitch_pages.py + split_pages.py), 440px webp 10-56KB
 - Perf pass: hero 132KB→48KB mobile (640w srcset)/75KB desktop, covers ~21KB, sample pages q66 (~690KB total, lazy), hero no longer waits on framer-motion Reveal, Google Fonts non-render-blocking
+
+## 2026-10-30 — PDF delivery, per-page Meta Pixel, support email + hours
+- Support: email changed everywhere → `medicalmasterbook@gmail.com`; `support_hours = "10am to 7pm"` (shown on Contact page, Footer, and delivery email).
+- Bookkeeping (`/business-bookkeeping-system`):
+  - download_files replaced with new public PDF: Bookkeeping_Business_Template_Access_Guide.pdf.
+  - OrderSuccess shows a highlighted note explaining the clickable product links are INSIDE the PDF.
+  - Resend delivery email now appends a Bookkeeping-only block with the Business Bookkeeping Spreadsheet, Habit Tracker and 500+ Excel Templates links, "best used on PC/laptop or install Sheets/Excel on phone", and the "File → Make a copy" editable instructions.
+- Medical 6 Combo (`/medical-6-combo`):
+  - Add-on `ct-mri-xray-guide` → CT-MRI-XRay-Interpretation-Guide.pdf download_url.
+  - Add-on `radiology-guide` (Physiotherapy Guide) → physiotherapy-clinical-casebook-2026-.pdf download_url.
+  - 6-combo books continue to deliver via `/public/downloads/*.pdf` (unchanged — user did not supply new PDFs for those).
+- Meta Pixel split (fixes "data mixing"):
+  - Global pixel init removed from `/app/frontend/public/index.html`.
+  - New `src/lib/metaPixel.js` loads `fbevents.js` + inits a pixel ONCE per route.
+  - `/business-bookkeeping-system` → pixel `1605079064338578` only.
+  - `/medical-6-combo` → pixel `3470309736541129` only.
+  - `/order-success` picks the pixel matching the purchased product slug before firing the `Purchase` event (correct ad-account attribution).
+  - All other pages: no pixel loaded.
+- Verified live (preview): settings API, product/add-on download URLs, email HTML, per-page `window.fbq` presence (bookkeeping ✓, medical ✓, home ✗).
+
+### Backlog / Not yet done
+- Production (`ledgerkit.in`) still needs: Cloudflare SSL verification + Razorpay LIVE secrets + re-publish before real paid-E2E delivery test.
+- A real paid Razorpay → Resend delivery E2E has not been exercised with the new email block yet (unit-rendered HTML verified only).

@@ -43,7 +43,7 @@ export const SITE_FAQS = [
   { q: "What is your refund policy?", a: "Please read the Refund & Cancellation Policy linked in the footer before purchasing — it explains the exact rules for digital products." },
   { q: "Do your guides guarantee business or advertising results?", a: "No. Our products are educational. Outcomes depend on your product, market, offer, creative, budget, competition and execution." },
   { q: "Is LedgerKit affiliated with Meta?", a: "No. This is an independent educational business and is not sponsored, endorsed or administered by Meta Platforms, Inc." },
-  { q: "How can I contact support?", a: "Use the Contact page form, or email us at ledgerkitsupport@gmail.com." },
+  { q: "How can I contact support?", a: "Use the Contact page form, or email us at medicalmasterbook@gmail.com (support hours 10am to 7pm)." },
 ];
 
 // Social-proof purchase popups. Set enabled: false to turn off completely.

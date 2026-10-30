@@ -10,10 +10,10 @@ SITE_SETTINGS = {
     "key": "site",
     "brand_name": "LedgerKit",
     "tagline": "Practical Digital Guides",
-    "support_email": "ledgerkitsupport@gmail.com",
+    "support_email": "medicalmasterbook@gmail.com",
     "support_phone": "",
     "business_address": "",
-    "support_hours": "",
+    "support_hours": "10am to 7pm",
     "response_time": "",
 }
 
@@ -652,7 +652,7 @@ BOOKKEEPING_PRODUCT = {
     "is_add_on": False,
     "offer_end": None,
     "download_files": [
-        {"title": "Business Bookkeeping System (Excel + Google Sheets + Video Tutorial)", "url": f"{SITE_BASE}/downloads/business-bookkeeping-system.pdf"},
+        {"title": "Business Bookkeeping Template Access Guide", "url": "https://customer-assets-0z36b82j.emergentagent.net/job_ledgerkit-live/artifacts/11ee96d691e8475d_Bookkeeping_Business_Template_Access_Guide.pdf"},
     ],
     "whats_included": [
         "Income & expense tracker",
@@ -846,12 +846,20 @@ _COMBO6_COVERS = {
     "ct-mri-xray-guide": "/samples/combo-6/cover-ct-scan.webp",
 }
 
+_COMBO6_DOWNLOADS = {
+    "ct-mri-xray-guide": "https://customer-assets-0z36b82j.emergentagent.net/job_ledgerkit-live/artifacts/2c802fc0b177fac1_CT-MRI-XRay-Interpretation-Guide.pdf",
+    "radiology-guide": "https://customer-assets-0z36b82j.emergentagent.net/job_ledgerkit-live/artifacts/9b680d6bc60c56bf_physiotherapy-clinical-casebook-2026-.pdf",
+}
+
 
 def _combo6_add_on(slug, title, tagline, description):
     """Add-on sold ONLY alongside the 6 PDF combo — hidden from every other listing."""
     doc = _add_on(slug, title, 149, tagline, description)
     doc["combo6_only"] = True
     doc["cover_image"] = _COMBO6_COVERS.get(slug, "")
+    download_url = _COMBO6_DOWNLOADS.get(slug)
+    if download_url:
+        doc["download_files"] = [{"title": title, "url": download_url}]
     return doc
 
 

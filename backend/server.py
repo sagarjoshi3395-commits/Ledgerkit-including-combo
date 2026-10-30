@@ -394,6 +394,17 @@ async def _deliver_products(order_doc: dict, buyer_email: str) -> bool:
     Recipient + content are entirely server-side (G4). Never raises."""
     downloads = await _resolve_downloads(order_doc)
     delivery_items = [{"title": d["title"], "download_url": d["download_url"]} for d in downloads]
+    # Collect all product slugs present in the order (including expanded bundles)
+    product_slugs: list[str] = []
+    items_src = order_doc.get("items") or [{
+        "product_slug": order_doc.get("product_slug"),
+    }]
+    for it in items_src:
+        slug = it.get("product_slug")
+        if slug == "complete-business-bundle":
+            product_slugs.extend(BUNDLE_PART_SLUGS)
+        elif slug:
+            product_slugs.append(slug)
     settings = await db.settings.find_one({"key": "site"}) or {}
     support_email = settings.get("support_email") or SITE_SETTINGS.get("support_email")
     subject, html = build_delivery_email(
@@ -401,6 +412,7 @@ async def _deliver_products(order_doc: dict, buyer_email: str) -> bool:
         items=delivery_items,
         amount=order_doc.get("amount"),
         support_email=support_email,
+        product_slugs=product_slugs,
     )
     email_id = await send_email(to=buyer_email, subject=subject, html=html)
     return bool(email_id)

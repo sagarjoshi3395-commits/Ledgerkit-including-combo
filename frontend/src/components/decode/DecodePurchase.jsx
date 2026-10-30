@@ -9,7 +9,7 @@ import { ShieldCheck, Zap, Headset, ImagePlus } from "lucide-react";
 const TRUST_ITEMS = [
   { icon: ShieldCheck, title: "Secure Payment", text: "Payment is handled through the configured payment provider." },
   { icon: Zap, title: "Instant Digital Delivery", text: "Digital access instructions are provided after successful payment." },
-  { icon: Headset, title: "Support Available", text: "Email ledgerkitsupport@gmail.com for any payment or access issue — we reply personally." },
+  { icon: Headset, title: "Support Available", text: "Email medicalmasterbook@gmail.com for any payment or access issue — we reply personally." },
 ];
 
 export function PricingSection({ product, selected, onSelect }) {
@@ -56,7 +56,7 @@ export function DecodeFaqSection({ product }) {
           <FaqAccordion items={faqs} testId="decode-faq" />
         </div>
         <p className="mt-6 text-center text-sm text-slate-500" data-testid="faq-support-note">
-          Still stuck? Email us at <a href="mailto:ledgerkitsupport@gmail.com" className="font-semibold text-brand-600 underline underline-offset-2">ledgerkitsupport@gmail.com</a> — we reply personally.
+          Still stuck? Email us at <a href="mailto:medicalmasterbook@gmail.com" className="font-semibold text-brand-600 underline underline-offset-2">medicalmasterbook@gmail.com</a> — we reply personally.
         </p>
       </div>
     </section>
