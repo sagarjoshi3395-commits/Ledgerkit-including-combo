@@ -1,0 +1,27 @@
+{
+  "summary": "Backend-only test of the email delivery fix (Resend). 6/6 pytest tests passed. A live Resend send to s02329739@gmail.com (the account owner) returned a non-empty id. _deliver_in_background on a seeded paid bookkeeping order set delivery_status='sent' and delivered_to=s02329739@gmail.com. POST /api/checkout/verify was run in-process with razorpay_client mocked (signature check passes, payment.fetch returns the owner email). It returned 200 {status:'paid', delivery:'queued'}, and the background task then saved delivery_status='sent'. The bookkeeping template contains the PDF URL, all 3 spreadsheet/Drive links, the File -> Make a copy steps, '10am to 7pm' and medicalmasterbook@gmail.com, and it passes the email safety checks. The bookkeeping block is absent for other products. The product, combo-6 add-on and settings endpoints return the expected URLs and values.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "backend/.env RESEND_FROM", "issue": "RESEND_FROM holds the Resend API key instead of an email address. The code falls back to onboarding@resend.dev, so sending works, but emails come from Resend's shared sandbox sender. Once a domain is verified, set RESEND_FROM to something like 'LedgerKit <orders@yourdomain>'."}
+    ]
+  },
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "product_limitation_not_a_bug": "Resend sandbox: until a domain is verified at resend.com/domains, Resend only accepts mail to the account owner (s02329739@gmail.com) and rejects other buyers with 403 validation_error. When that happens, send_email returns None and the order is marked delivery_status='pending'. Real customers will not get emails until the user verifies a domain and updates RESEND_FROM. A live send to medicalmasterbook@gmail.com was deliberately not attempted, as instructed.",
+  "test_report_links": ["/app/backend/tests/test_email_delivery.py", "/app/test_reports/pytest/pytest_email_delivery.xml"],
+  "action_items": [
+    "Tell the user to verify a sending domain in Resend and set RESEND_FROM to an address on that domain; without this, real buyers will not get emails.",
+    "Optional: add an admin re-send endpoint or job for orders with delivery_status='pending', so buyers whose emails failed during the sandbox period can get their products after the domain is verified."
+  ],
+  "critical_code_review_comments": [
+    "verify_razorpay_payment passes the pre-update `order` doc to the background task. That works because _deliver_products uses buyer_email separately, but anything that reads order['status'] there would see the stale value.",
+    "If verify is called twice before the first background task finishes, two emails can be sent, because delivery_status is only set after the send completes. Consider an atomic 'sending' claim (find_one_and_update) first.",
+    "Failed sends are only logged and marked 'pending'. Nothing retries them."
+  ],
+  "updated_files": ["/app/backend/tests/test_email_delivery.py"],
+  "success_rate": {"backend": "100%", "frontend": "N/A (skipped)"},
+  "seed_data_creation": "TEST_-prefixed orders were inserted in-process and deleted afterwards.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "test_email_delivery.py imports server/email_service directly and runs the live Resend and mocked-Razorpay verify flow in one asyncio.run to avoid motor loop issues. It only sends live email to s02329739@gmail.com."
+}

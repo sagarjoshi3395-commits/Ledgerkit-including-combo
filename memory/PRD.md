@@ -275,3 +275,9 @@ See /app/memory/test_credentials.md.
 ### Backlog / Not yet done
 - Production (`ledgerkit.in`) still needs: Cloudflare SSL verification + Razorpay LIVE secrets + re-publish before real paid-E2E delivery test.
 - A real paid Razorpay → Resend delivery E2E has not been exercised with the new email block yet (unit-rendered HTML verified only).
+
+## 2026-10-30 (later) — Resend wired + verified
+- RESEND_API_KEY saved (via secure card). email_service.py now defensively falls back to `onboarding@resend.dev` if the saved RESEND_FROM is not an email (the user pasted the key into it by mistake).
+- Verified live: Resend returned a real id for a send to the account owner.
+- Verified by test agent (iteration_11.json, 6/6 pass): /api/checkout/verify with signature mocked → background task sets delivery_status='sent'; delivery HTML contains PDF URL, all 3 spreadsheet links, File→Make-a-copy, 10am-7pm, medicalmasterbook@gmail.com; add-on PDFs + settings all correct.
+- Known product limitation (NOT a bug): until the Resend domain is verified at resend.com/domains, Resend only accepts the account owner (s02329739@gmail.com) and rejects real buyers with 403 validation_error. send_email() returns None, order stays delivery_status='pending'. User must verify a domain + update RESEND_FROM to e.g. `LedgerKit <orders@ledgerkit.in>`.
