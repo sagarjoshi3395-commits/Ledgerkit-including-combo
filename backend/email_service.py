@@ -23,7 +23,14 @@ logger = logging.getLogger(__name__)
 EMAIL_BASE_URL = "https://integrations.emergentagent.com"
 EMAIL_KEY = os.environ.get("EMERGENT_EMAIL_KEY", "")
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
-RESEND_FROM = os.environ.get("RESEND_FROM", "onboarding@resend.dev")
+# RESEND_FROM must be an email address (optionally in `Name <email>` form).
+# If the saved value doesn't look like one (e.g. the API key was pasted into it
+# by mistake), fall back to Resend's shared sandbox address so sends still work.
+_RAW_RESEND_FROM = os.environ.get("RESEND_FROM", "").strip()
+if "@" in _RAW_RESEND_FROM:
+    RESEND_FROM = _RAW_RESEND_FROM
+else:
+    RESEND_FROM = "onboarding@resend.dev"
 RESEND_URL = "https://api.resend.com/emails"
 EMAIL_FROM_NAME = os.environ.get("EMAIL_FROM_NAME", "LedgerKit")  # this app's OWN brand (G1)
 EMAIL_REPLY_TO = os.environ.get("EMAIL_REPLY_TO")
