@@ -1,0 +1,36 @@
+{
+  "summary": "Backend and static-code test of the Resend 403 'domain not verified' fallback and the dual bookkeeping Meta Pixel. 9/9 tests passed in the new file /app/backend/tests/test_resend_fallback.py. (1) Mocked httpx, 403 then 200: send_email(to=medicalmasterbook@gmail.com) made 2 POSTs and returned 'stub-id-1'. The second POST used from='LedgerKit <onboarding@resend.dev>', to=['s02329739@gmail.com'], a subject starting '[PENDING DOMAIN]' and containing 'original buyer: medicalmasterbook@gmail.com', and the yellow banner placed before the original HTML. (2) A send to the owner made only 1 POST and no fallback. A 403 that does not mention verification made no fallback and returned None. A 403 followed by a failed fallback (500) returned None. (3) _deliver_in_background on a seeded TEST_ paid bookkeeping order with buyer medicalmasterbook@gmail.com, using the mocked 403 then 200, ended with delivery_status='sent' and delivered_to=medicalmasterbook@gmail.com. The order was deleted afterwards. (4) Exactly ONE live call: the real Resend API returned 403 for the buyer, then the fallback succeeded and returned a non-empty id. Resend GET /emails shows id 01a1ae6d-... sent to s02329739@gmail.com from onboarding@resend.dev, subject '[PENDING DOMAIN] Your LedgerKit download is ready (original buyer: medicalmasterbook@gmail.com)', last_event=delivered. (5) metaPixel.js was run in node with a stubbed fbq. pixelIdsForProductSlug returns ['1605079064338578','2251324629120904'] for business-bookkeeping-system, ['3470309736541129'] for the 3 medical slugs, and [] for unknown or null slugs. useMetaPixel accepts both a string and an array and calls init once per unique id. BookkeepingLanding passes both IDs as an array. OrderSuccess imports pixelIdsForProductSlug, does not use the old helper, and runs pixelIds.forEach(initMetaPixel).",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "server._deliver_in_background / email_service.send_email", "issue": "If the fallback succeeds, the order is saved as delivery_status='sent' with delivered_to=<buyer>, even though the buyer got nothing and only the owner inbox did. These orders look the same as genuinely delivered ones, so after DNS verification nothing can tell which ones need a re-send. The banner also tells the owner to 'resend this order from the admin panel', but no such endpoint exists."},
+      {"endpoint": "email_service.send_email fallback", "issue": "The buyer address `to` goes into the fallback banner HTML without escaping. It comes from Razorpay, so the risk is low, but it should use html.escape(to). The fallback subject and HTML also skip _assert_safe_email."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Meta Pixel PageView (BookkeepingLanding, OrderSuccess)", "issue": "initMetaPixel calls fbq('track','PageView') once per id. fbq 'track' sends to every pixel that has been initialised, so with 2 pixels each pixel gets 2 PageViews per page load. Fix: init all ids first, then track PageView once (or use trackSingle per id).", "affected_selectors": ["/app/frontend/src/lib/metaPixel.js"]},
+      {"flow": "Meta Pixel Purchase", "issue": "trackEvent uses fbq('track','Purchase'), which sends to all pixels initialised in this SPA session. A buyer who saw a medical page earlier will also send the bookkeeping Purchase to pixel 3470309736541129. Consider fbq('trackSingle', id, 'Purchase', ...) for each id in pixelIds.", "affected_selectors": ["/app/frontend/src/lib/analytics.js", "/app/frontend/src/pages/OrderSuccess.jsx"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/test_resend_fallback.py", "/app/test_reports/pytest/pytest_resend_fallback.xml", "/app/backend/tests/test_email_delivery.py"],
+  "action_items": [
+    "Record fallback deliveries separately, e.g. delivery_status='sent_owner_fallback' or a delivered_via_fallback flag with fallback_to, and add an admin re-send endpoint for those orders once the domain is verified.",
+    "Escape `to` in the fallback banner HTML.",
+    "Fix the duplicate PageView: initialise all pixel ids, then call fbq('track','PageView') once.",
+    "Optional: send Purchase with trackSingle to the product's own pixel ids only.",
+    "Tell the user: real buyers still get nothing automatically until ledgerkit.in is verified at resend.com/domains. The owner must forward each '[PENDING DOMAIN]' email by hand."
+  ],
+  "critical_code_review_comments": [
+    "pixelIdsForProductSlug also maps 'productivity-execution-bundle' to the bookkeeping pixels. This was not in the request, so confirm it is intended.",
+    "Carried over from iteration 11: there is no atomic 'sending' claim, so a repeated /checkout/verify can send twice, and failed sends are not retried."
+  ],
+  "updated_files": ["/app/backend/tests/test_resend_fallback.py"],
+  "success_rate": {"backend": "100% (9/9)", "frontend": "N/A (static code checks only, all passed)"},
+  "seed_data_creation": "One TEST_-prefixed order was inserted in-process and deleted by order_id.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "test_resend_fallback.py: everything is mocked by monkeypatching httpx.AsyncClient.post, except test_live_buyer_send_falls_back, which does ONE real fallback send to the owner inbox. Skip or deselect it (-k 'not live') if you need zero sends. test_email_delivery.py (iteration 11) makes 3 live sends to the owner and was NOT re-run this iteration. Resend GET /emails works with the .env key and shows delivery status without sending anything."
+}

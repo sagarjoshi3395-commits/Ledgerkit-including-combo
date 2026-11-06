@@ -281,3 +281,9 @@ See /app/memory/test_credentials.md.
 - Verified live: Resend returned a real id for a send to the account owner.
 - Verified by test agent (iteration_11.json, 6/6 pass): /api/checkout/verify with signature mocked → background task sets delivery_status='sent'; delivery HTML contains PDF URL, all 3 spreadsheet links, File→Make-a-copy, 10am-7pm, medicalmasterbook@gmail.com; add-on PDFs + settings all correct.
 - Known product limitation (NOT a bug): until the Resend domain is verified at resend.com/domains, Resend only accepts the account owner (s02329739@gmail.com) and rejects real buyers with 403 validation_error. send_email() returns None, order stays delivery_status='pending'. User must verify a domain + update RESEND_FROM to e.g. `LedgerKit <orders@ledgerkit.in>`.
+
+## 2026-10-30 (follow-up) — Resend sandbox fallback + 2nd bookkeeping pixel
+- Second Meta Pixel `2251324629120904` now fires on `/business-bookkeeping-system` alongside `1605079064338578`. OrderSuccess fires BOTH for bookkeeping purchases (`pixelIdsForProductSlug`).
+- Resend 403 "domain not verified" fallback added to `email_service.send_email`: on that specific error, the same email is re-sent from `onboarding@resend.dev` to the owner inbox `s02329739@gmail.com` (overridable via RESEND_OWNER_FALLBACK), with `[PENDING DOMAIN]` subject prefix + yellow banner showing the buyer's address. This guarantees NO delivery email is lost until DNS verification completes.
+- Verified by testing_agent iteration_12.json: 9/9 pass, zero critical issues.
+- Known limitation: fallback-delivered orders are marked `delivery_status='sent'` with the buyer email as `delivered_to`; after DNS verification, add an admin "resend pending-domain orders" tool to catch up.
