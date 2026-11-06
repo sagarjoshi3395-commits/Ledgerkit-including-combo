@@ -32,6 +32,12 @@ if "@" in _RAW_RESEND_FROM:
 else:
     RESEND_FROM = "onboarding@resend.dev"
 RESEND_URL = "https://api.resend.com/emails"
+# Owner inbox that receives a copy when Resend rejects a buyer address because
+# the sending domain isn't verified yet. We default to the Resend account
+# owner (the only recipient Resend sandbox accepts) so the shop owner at least
+# has every delivery email in hand and can forward it to the real buyer until
+# domain verification is complete. Override via RESEND_OWNER_FALLBACK env.
+RESEND_OWNER_FALLBACK = os.environ.get("RESEND_OWNER_FALLBACK", "") or "s02329739@gmail.com"
 EMAIL_FROM_NAME = os.environ.get("EMAIL_FROM_NAME", "LedgerKit")  # this app's OWN brand (G1)
 EMAIL_REPLY_TO = os.environ.get("EMAIL_REPLY_TO")
 
@@ -138,6 +144,32 @@ async def send_email(*, to: str, subject: str, html: str, reply_to: str | None =
                     headers={"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"},
                     json=payload,
                 )
+            # Resend sandbox fallback: until the user's domain is verified,
+            # Resend returns 403 "domain is not verified" / "only send to owner".
+            # Fall back to the shared sandbox sender so the delivery email STILL
+            # reaches the account owner's inbox — the owner can then forward it
+            # to the buyer manually while DNS verification is pending.
+            if resp.status_code == 403 and "verif" in resp.text.lower():
+                fallback_payload = {
+                    "from": f"{EMAIL_FROM_NAME} <onboarding@resend.dev>",
+                    "to": [RESEND_OWNER_FALLBACK] if RESEND_OWNER_FALLBACK else [to],
+                    "subject": f"[PENDING DOMAIN] {subject} (original buyer: {to})",
+                    "html": (
+                        f'<p style="background:#fff4d6;border:1px solid #f0c94c;padding:10px;'
+                        f'font:14px Arial,sans-serif;">Resend domain not yet verified. '
+                        f'Original buyer email: <strong>{to}</strong>. '
+                        f'Forward the email below once the domain is live, or just resend '
+                        f'this order from the admin panel after DNS is green.</p>' + html
+                    ),
+                }
+                if effective_reply_to:
+                    fallback_payload["reply_to"] = effective_reply_to
+                async with httpx.AsyncClient(timeout=30) as client:
+                    resp = await client.post(
+                        RESEND_URL,
+                        headers={"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"},
+                        json=fallback_payload,
+                    )
         else:
             payload = {"to": [to], "subject": subject, "html": html, "from_name": EMAIL_FROM_NAME}
             if effective_reply_to:

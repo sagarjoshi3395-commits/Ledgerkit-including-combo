@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { CheckCircle2, Clock, Mail, ArrowRight, Download } from "lucide-react";
 import { api, formatINR } from "../lib/api";
 import { trackEvent, getStoredUtms } from "../lib/analytics";
-import { initMetaPixel, pixelIdForProductSlug } from "../lib/metaPixel";
+import { initMetaPixel, pixelIdsForProductSlug } from "../lib/metaPixel";
 import Seo from "../components/Seo";
 import { Skeleton } from "../components/ui/skeleton";
 
@@ -39,12 +39,13 @@ export default function OrderSuccess() {
   const downloads = order?.downloads || [];
   const isBookkeeping = order?.product_slug === "business-bookkeeping-system";
 
-  // Load the pixel that owns the purchased product's page BEFORE firing Purchase,
-  // so revenue attributes to the correct ad account (never the other one).
-  const pixelId = pixelIdForProductSlug(order?.product_slug);
+  // Load the pixel(s) that own the purchased product's page BEFORE firing Purchase,
+  // so revenue attributes to the correct ad account(s) and never the other one.
+  const pixelIds = pixelIdsForProductSlug(order?.product_slug);
+  const pixelId = pixelIds[0] || null; // used as the "should we track" guard
   useEffect(() => {
-    if (pixelId) initMetaPixel(pixelId);
-  }, [pixelId]);
+    pixelIds.forEach((id) => initMetaPixel(id));
+  }, [pixelIds.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fire the Meta Pixel Purchase event exactly once when a paid order loads.
   const purchaseFired = useRef(false);

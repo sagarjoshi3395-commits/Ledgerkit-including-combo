@@ -19,7 +19,7 @@ import "../components/bookkeeping/bbs-landing.css";
 import { useMetaPixel } from "../lib/metaPixel";
 
 export default function BookkeepingLanding() {
-  useMetaPixel("1605079064338578");
+  useMetaPixel(["1605079064338578", "2251324629120904"]);
   return (
     <div className="bbs-page min-h-screen">
       <Seo

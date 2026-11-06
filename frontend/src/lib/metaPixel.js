@@ -39,26 +39,33 @@ export function initMetaPixel(pixelId, { trackPageView = true } = {}) {
   if (trackPageView) window.fbq("track", "PageView");
 }
 
-// Page-pixel hook. Call from a page's root once with its own pixel ID.
-export function useMetaPixel(pixelId) {
+// Page-pixel hook. Call from a page's root once with its own pixel ID or an array of IDs.
+export function useMetaPixel(pixelIdOrIds) {
+  const key = Array.isArray(pixelIdOrIds) ? pixelIdOrIds.join(",") : pixelIdOrIds || "";
   useEffect(() => {
-    if (!pixelId) return;
-    initMetaPixel(pixelId);
-  }, [pixelId]);
+    const ids = Array.isArray(pixelIdOrIds) ? pixelIdOrIds : [pixelIdOrIds];
+    ids.filter(Boolean).forEach((id) => initMetaPixel(id));
+  }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
-// Map a product_slug to the pixel that owns its page (used on Order Success).
-export function pixelIdForProductSlug(slug) {
-  if (!slug) return null;
+// Map a product_slug to the pixel(s) that own its page (used on Order Success).
+export function pixelIdsForProductSlug(slug) {
+  if (!slug) return [];
   if (slug === "business-bookkeeping-system" || slug === "productivity-execution-bundle") {
-    return "1605079064338578";
+    return ["1605079064338578", "2251324629120904"];
   }
   if (
     slug === "medical-6-pdf-combo" ||
     slug === "ct-mri-xray-guide" ||
     slug === "radiology-guide"
   ) {
-    return "3470309736541129";
+    return ["3470309736541129"];
   }
-  return null;
+  return [];
+}
+
+// Legacy single-id helper (kept for callers that only want one pixel).
+export function pixelIdForProductSlug(slug) {
+  const arr = pixelIdsForProductSlug(slug);
+  return arr[0] || null;
 }
