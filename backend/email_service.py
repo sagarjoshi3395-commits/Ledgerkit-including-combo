@@ -9,6 +9,10 @@ import re
 import ipaddress
 import logging
 import httpx
+import asyncio
+import smtplib
+from email.message import EmailMessage
+from email.utils import formataddr
 from pathlib import Path
 from html import escape
 from html.parser import HTMLParser
@@ -41,7 +45,25 @@ RESEND_OWNER_FALLBACK = os.environ.get("RESEND_OWNER_FALLBACK", "") or "s0232973
 EMAIL_FROM_NAME = os.environ.get("EMAIL_FROM_NAME", "LedgerKit")  # this app's OWN brand (G1)
 EMAIL_REPLY_TO = os.environ.get("EMAIL_REPLY_TO")
 
-email_configured = bool(RESEND_API_KEY or EMAIL_KEY)
+GMAIL_USER = os.environ.get("GMAIL_USER", "").strip()
+GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "").replace(" ", "")
+
+email_configured = bool(RESEND_API_KEY or EMAIL_KEY or (GMAIL_USER and GMAIL_APP_PASSWORD))
+
+
+def _send_gmail(to: str, subject: str, html: str, reply_to: str | None) -> str:
+    msg = EmailMessage()
+    msg["From"] = formataddr((EMAIL_FROM_NAME, GMAIL_USER))
+    msg["To"] = to
+    msg["Subject"] = subject
+    if reply_to:
+        msg["Reply-To"] = reply_to
+    msg.set_content("Please view this email in an HTML-capable client.")
+    msg.add_alternative(html, subtype="html")
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=30) as s:
+        s.login(GMAIL_USER, GMAIL_APP_PASSWORD)
+        s.send_message(msg)
+    return "gmail"
 
 # ----------------------------------------------------------------------------
 # Guardrail gate (copied as-is from the Resend playbook; call on every send)
@@ -132,6 +154,11 @@ async def send_email(*, to: str, subject: str, html: str, reply_to: str | None =
         return None
     _assert_safe_email(subject, html)  # G2-G3 gate — never skip
     effective_reply_to = reply_to or EMAIL_REPLY_TO
+    if GMAIL_USER and GMAIL_APP_PASSWORD:
+        try:
+            return await asyncio.to_thread(_send_gmail, to, subject, html, effective_reply_to)
+        except Exception as e:
+            logger.error(f"Gmail send failed, trying Resend: {e}")
     try:
         if RESEND_API_KEY:
             sender = RESEND_FROM if "<" in RESEND_FROM else f"{EMAIL_FROM_NAME} <{RESEND_FROM}>"

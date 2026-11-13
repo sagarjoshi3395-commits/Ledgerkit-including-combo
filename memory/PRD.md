@@ -287,3 +287,7 @@ See /app/memory/test_credentials.md.
 - Resend 403 "domain not verified" fallback added to `email_service.send_email`: on that specific error, the same email is re-sent from `onboarding@resend.dev` to the owner inbox `s02329739@gmail.com` (overridable via RESEND_OWNER_FALLBACK), with `[PENDING DOMAIN]` subject prefix + yellow banner showing the buyer's address. This guarantees NO delivery email is lost until DNS verification completes.
 - Verified by testing_agent iteration_12.json: 9/9 pass, zero critical issues.
 - Known limitation: fallback-delivered orders are marked `delivery_status='sent'` with the buyer email as `delivered_to`; after DNS verification, add an admin "resend pending-domain orders" tool to catch up.
+
+## 2026-06 Gmail delivery
+- email_service.py: sends via Gmail SMTP (GMAIL_USER + GMAIL_APP_PASSWORD) first, falls back to Resend [PENDING DOMAIN] flow.
+- BLOCKED: saved GMAIL_APP_PASSWORD rejected (13 chars, likely normal password). Needs 16-char App Password.
