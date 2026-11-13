@@ -82,7 +82,7 @@ class TestDeliveryTemplate:
 
 # ---- Live Resend + in-process background delivery / verify endpoint ----
 def test_live_flow_inprocess():
-    assert email_service.RESEND_API_KEY.startswith("re_")
+    assert email_service.EMAIL_KEY.startswith("ek_")
     import server  # noqa: E402
     from httpx import AsyncClient, ASGITransport
 
