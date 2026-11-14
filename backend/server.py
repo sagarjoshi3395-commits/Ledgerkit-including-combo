@@ -542,6 +542,69 @@ async def admin_create_product(payload: ProductCreate, x_admin_key: Optional[str
     return {"ok": True, "slug": payload.slug}
 
 
+@api_router.post("/admin/orders/{order_id}/resend-delivery")
+async def admin_resend_delivery(order_id: str, x_admin_key: Optional[str] = Header(default=None)):
+    """Re-send the product delivery email for a single paid order. Admin-only."""
+    admin_key = os.environ.get("ADMIN_KEY")
+    if not admin_key:
+        raise HTTPException(status_code=503, detail="Admin API disabled. Set ADMIN_KEY in backend/.env to enable.")
+    if x_admin_key != admin_key:
+        raise HTTPException(status_code=403, detail="Invalid admin key")
+    order = await db.orders.find_one({"order_id": order_id})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    if order.get("status") != "paid":
+        raise HTTPException(status_code=400, detail=f"Order is not paid (status={order.get('status')})")
+    buyer_email = (order.get("email") or "").strip()
+    if not buyer_email:
+        raise HTTPException(status_code=400, detail="Order has no buyer email on record")
+    delivered = await _deliver_products(order, buyer_email)
+    await db.orders.update_one(
+        {"order_id": order_id},
+        {"$set": {"delivery_status": "sent" if delivered else "pending", "delivered_to": buyer_email if delivered else None}},
+    )
+    return {"ok": delivered, "order_id": order_id, "email": buyer_email, "delivery_status": "sent" if delivered else "pending"}
+
+
+@api_router.post("/admin/orders/resend-pending")
+async def admin_resend_pending(x_admin_key: Optional[str] = Header(default=None), limit: int = 500):
+    """One-shot backfill: re-deliver every paid order whose delivery is not 'sent'.
+    Processes serially with a tiny pause so the proxy isn't rate-limited. Admin-only."""
+    admin_key = os.environ.get("ADMIN_KEY")
+    if not admin_key:
+        raise HTTPException(status_code=503, detail="Admin API disabled. Set ADMIN_KEY in backend/.env to enable.")
+    if x_admin_key != admin_key:
+        raise HTTPException(status_code=403, detail="Invalid admin key")
+    cursor = db.orders.find({
+        "status": "paid",
+        "$or": [{"delivery_status": {"$ne": "sent"}}, {"delivery_status": {"$exists": False}}],
+        "email": {"$nin": [None, ""]},
+    }).limit(max(1, min(limit, 1000)))
+    sent = 0
+    failed = 0
+    skipped = 0
+    async for order in cursor:
+        buyer_email = (order.get("email") or "").strip()
+        if not buyer_email:
+            skipped += 1
+            continue
+        try:
+            delivered = await _deliver_products(order, buyer_email)
+        except Exception as exc:
+            logger.error("Backfill delivery failed for %s: %s", order.get("order_id"), exc)
+            delivered = False
+        await db.orders.update_one(
+            {"order_id": order.get("order_id")},
+            {"$set": {"delivery_status": "sent" if delivered else "pending", "delivered_to": buyer_email if delivered else None}},
+        )
+        if delivered:
+            sent += 1
+        else:
+            failed += 1
+        await asyncio.sleep(0.25)  # gentle pacing for the email proxy
+    return {"ok": True, "sent": sent, "failed": failed, "skipped": skipped}
+
+
 app.include_router(api_router)
 
 app.add_middleware(

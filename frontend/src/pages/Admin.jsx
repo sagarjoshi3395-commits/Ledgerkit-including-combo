@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Loader2, PlusCircle } from "lucide-react";
+import { Loader2, PlusCircle, Send, Mail } from "lucide-react";
 import { api } from "../lib/api";
 import Seo from "../components/Seo";
 import { Input } from "../components/ui/input";
@@ -18,6 +18,9 @@ export default function Admin() {
   const [form, setForm] = useState(EMPTY);
   const [adminKey, setAdminKey] = useState("");
   const [saving, setSaving] = useState(false);
+  const [resendOrderId, setResendOrderId] = useState("");
+  const [resendingOne, setResendingOne] = useState(false);
+  const [resendingAll, setResendingAll] = useState(false);
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e?.target ? e.target.value : e }));
 
@@ -41,6 +44,36 @@ export default function Admin() {
       toast.error(detail);
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleResendOne() {
+    const id = resendOrderId.trim();
+    if (!id) { toast.error("Enter an order id first."); return; }
+    if (!adminKey) { toast.error("Enter your admin key first."); return; }
+    setResendingOne(true);
+    try {
+      const { data } = await api.post(`/admin/orders/${encodeURIComponent(id)}/resend-delivery`, null, { headers: { "x-admin-key": adminKey } });
+      if (data.ok) toast.success("Delivery email sent", { description: `${id} → ${data.email}` });
+      else toast.error("Send attempted but marked pending — check backend logs.");
+    } catch (err) {
+      toast.error(err?.response?.data?.detail || "Could not resend.");
+    } finally {
+      setResendingOne(false);
+    }
+  }
+
+  async function handleResendAllPending() {
+    if (!adminKey) { toast.error("Enter your admin key first."); return; }
+    if (!window.confirm("Re-send the delivery email to every paid order that hasn't been delivered yet? This can take a few minutes.")) return;
+    setResendingAll(true);
+    try {
+      const { data } = await api.post("/admin/orders/resend-pending", null, { headers: { "x-admin-key": adminKey }, timeout: 600000 });
+      toast.success("Backfill complete", { description: `Sent ${data.sent} • Failed ${data.failed} • Skipped ${data.skipped}` });
+    } catch (err) {
+      toast.error(err?.response?.data?.detail || "Backfill failed.");
+    } finally {
+      setResendingAll(false);
     }
   }
 
@@ -105,6 +138,29 @@ export default function Admin() {
             Add Product
           </button>
         </form>
+
+        <section className="mt-10 rounded-2xl border border-slate-200 bg-white p-7" data-testid="admin-delivery-tools">
+          <div className="flex items-center gap-2">
+            <Mail className="h-5 w-5 text-brand-600" />
+            <h2 className="font-display text-xl font-extrabold tracking-tight text-ink">Re-send delivery emails</h2>
+          </div>
+          <p className="mt-2 text-sm text-slate-600">
+            Uses the admin key entered above. Buyers from before the 14-Nov delivery fix sit at <code className="font-mono text-xs">delivery_status: pending</code> — "Send to all pending" re-delivers every one of them.
+          </p>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto]">
+            <Input placeholder="Paste an order id (e.g. ord_xxx)" value={resendOrderId} onChange={(e) => setResendOrderId(e.target.value)} data-testid="admin-resend-order-input" />
+            <button type="button" onClick={handleResendOne} disabled={resendingOne} data-testid="admin-resend-one-button" className="inline-flex items-center justify-center gap-2 rounded-lg border border-brand-600 bg-white px-5 py-3 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-50 disabled:opacity-60">
+              {resendingOne ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              Re-send this order
+            </button>
+          </div>
+
+          <button type="button" onClick={handleResendAllPending} disabled={resendingAll} data-testid="admin-resend-all-button" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-700 disabled:opacity-60">
+            {resendingAll ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            Send to all pending (backfill)
+          </button>
+        </section>
       </div>
     </main>
   );
