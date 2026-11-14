@@ -89,7 +89,7 @@ export default function Admin() {
         <form onSubmit={handleSubmit} className="mt-8 space-y-5 rounded-2xl border border-slate-200 bg-white p-7" data-testid="admin-product-form">
           <div>
             <Label htmlFor="a-key">Admin Key</Label>
-            <Input id="a-key" type="password" className="mt-1.5" value={adminKey} onChange={set("adminKey")} placeholder="Value of ADMIN_KEY from backend/.env" data-testid="admin-key-input" />
+            <Input id="a-key" type="password" className="mt-1.5" value={adminKey} onChange={(e) => setAdminKey(e.target.value)} placeholder="Value of ADMIN_KEY from backend/.env" data-testid="admin-key-input" />
           </div>
           <div className="grid gap-5 sm:grid-cols-2">
             <div>
